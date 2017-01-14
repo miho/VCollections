@@ -32,7 +32,6 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Michael Hoffer <info@michaelhoffer.de>.
  */
-
 package eu.mihosoft.vcollections;
 
 import java.util.AbstractList;
