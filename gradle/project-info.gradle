@@ -1,0 +1,25 @@
+// -----------------------------------------------------------------------------
+// publishing information
+// -----------------------------------------------------------------------------
+ext.publishing.artifactId =  project.name.toLowerCase()
+ext.publishing.groupId    =  'eu.mihosoft.vcollections'
+ext.publishing.versionId  =  '0.1.0'
+
+ext.publishing.developerName         = 'Michael Hoffer'
+ext.publishing.developerAlias        = 'miho'
+ext.publishing.developerEmail        = 'info@michaelhoffer.de'
+ext.publishing.inceptionYear         = '2017'
+
+ext.publishing.bintray.repo          = 'VCollections'
+ext.publishing.bintray.userOrg       = 'miho'
+ext.publishing.bintray.name          = project.name
+
+ext.publishing.desc                  = 'Lightweight observable collections (used by VMF and VRL)'
+ext.publishing.license               = 'BSD 2-Clause'
+ext.publishing.licenseUrl            = 'https://github.com/miho/VCollections/blob/master/LICENSE.txt'
+ext.publishing.labels                = ['collections', 'observable', 'vmf', 'modeling', 'data model', 'vrl', 'modeling framework']
+ext.publishing.websiteUrl            = 'https://github.com/miho/VCollections'
+ext.publishing.issueTrackerUrl       = 'https://github.com/miho/VCollections/issues'
+ext.publishing.vcsUrl                = 'https://github.com/miho/VCollections.git'
+
+ext.publishing.pomName               =  ext.publishing.artifactId
