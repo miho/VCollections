@@ -10,7 +10,7 @@ ext.publishing.developerAlias        = 'miho'
 ext.publishing.developerEmail        = 'info@michaelhoffer.de'
 ext.publishing.inceptionYear         = '2017'
 
-ext.publishing.bintray.repo          = 'VRL'
+ext.publishing.bintray.repo          = 'VCollections'
 ext.publishing.bintray.userOrg       = 'miho'
 ext.publishing.bintray.name          = project.name
 
