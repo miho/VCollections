@@ -14,10 +14,10 @@ before_install:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
 before_script:
-  - ./gradlew --version
+  - bash ./gradlew --version
   
 script:
-    - TERM=dumb ./gradlew clean build test -S
+    - TERM=dumb bash ./gradlew clean build test -S
     
 #after_success:
 #  - TERM=dumb ./gradlew test jacocoTestReport jacocoRootReport coveralls -S
