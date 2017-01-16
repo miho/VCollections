@@ -4,7 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -198,7 +200,7 @@ public class VListTest {
         // the elementsToAdd list object that equals
         Assert.assertTrue("change list must contain one element",
                 changes.size() == 1);
-        
+
         // test whether the reported elements are equal to the removed elements
         Assert.assertEquals(elementsToRemove, changes.get(0).elements());
 
@@ -230,7 +232,7 @@ public class VListTest {
         Integer intElemToRemove2 = vList.get(posToRemove2);
         // remove element
         vList.remove(posToRemove2);
-        
+
         // check that the remove command was reported
         Assert.assertTrue("We expected one change, got: "
                 + changes.size(), changes.size() == 1);
@@ -241,12 +243,12 @@ public class VListTest {
     }
 
     private void createRemoveElementFromListTest(int size) {
-        
+
         // initialize vlist
         List<Integer> aList = new ArrayList<>();
         addRandomInts(size, aList);
         VList<Integer> vList = VList.newInstance(aList);
-        
+
         // record all 'remove' events
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
@@ -259,7 +261,7 @@ public class VListTest {
         Integer intElemToRemove1 = vList.get(posToRemove1);
         // remove element
         vList.remove(intElemToRemove1);
-        
+
         // test whether change was reported
         Assert.assertTrue("We expected one changes, got: "
                 + changes.size(), changes.size() == 1);
@@ -299,16 +301,210 @@ public class VListTest {
         List<Integer> elementsToRetain
                 = new ArrayList(vList.subList(firstIndex, secondIndex));
         vList.retainAll(elementsToRetain);
-        
+
         // test whether list only contains retained elements
         Assert.assertEquals(elementsToRetain, vList);
-        
+
         // compute expected indices
         int[] removedIndices = IntStream.range(0, size).filter(
                 i -> i < firstIndex || i >= secondIndexFinal).toArray();
-        
+
         // test whether reported index array equals the expected indices
         Assert.assertArrayEquals(removedIndices, changes.get(0).indices());
+    }
+
+    @Test
+    public void setElementTest() {
+        for (int i = 0; i < 100; i++) {
+            int size = Math.max(1, getRandom().nextInt(100));
+            createSetElementTest(size);
+        }
+    }
+
+    private void createSetElementTest(int size) {
+        // creates a list with size random integers
+        List<Integer> aList = new ArrayList<>();
+        addRandomInts(size, aList);
+
+        // wrap this list in an observable vlist
+        VList<Integer> vList = VList.newInstance(aList);
+
+        // record all 'add' and remove events
+        List<VListChange<Integer>> added = new ArrayList<>();
+        List<VListChange<Integer>> removed = new ArrayList<>();
+        vList.addListChangeListener(evt -> {
+            added.add(evt.getAdded());
+            removed.add(evt.getRemoved());
+        });
+
+        // index where to set the element
+        int index = getRandom().nextInt(size);
+        // element to set
+        Integer element = getRandom().nextInt();
+        Integer prevElement = vList.get(index);
+
+        vList.set(index, element);
+
+        // check that the remove command was reported
+        Assert.assertTrue("We expected one change, got: "
+                + removed.size(), removed.size() == 1);
+        // check that the add command was reported
+        Assert.assertTrue("We expected one change, got: "
+                + added.size(), added.size() == 1);
+        // check whether the removed element matches the reported element
+        Assert.assertEquals(prevElement, removed.get(0).elements().get(0));
+        // check whether the index of the removed element matches the reported
+        // index
+        Assert.assertEquals(index, removed.get(0).indices()[0]);
+        // check whether the removed element matches the reported element
+        Assert.assertEquals(element, added.get(0).elements().get(0));
+        // check whether the index of the removed element matches the reported
+        // index
+        Assert.assertEquals(index, added.get(0).indices()[0]);
+    }
+
+    @Test
+    public void iteratorTest() {
+        for (int i = 0; i < 100; i++) {
+            int size = Math.max(1, getRandom().nextInt(100));
+            createIteratorAddTest(size);
+            createIteratorRemoveTest(size);
+            createIteratorSetTest(size);
+        }
+    }
+
+    private void createIteratorAddTest(int size) {
+        // creates a list with size random integers
+        List<Integer> aList = new ArrayList<>();
+        addRandomInts(size, aList);
+
+        // wrap this list in an observable vlist
+        VList<Integer> vList = VList.newInstance(aList);
+
+        // record all 'add' events
+        List<VListChange<Integer>> changes = new ArrayList<>();
+        vList.addListChangeListener(evt -> {
+            if (evt.wasAdded()) {
+                changes.add(evt.getAdded());
+            }
+        });
+
+        // element to add
+        Integer element = getRandom().nextInt();
+        // index where to add the element
+        int index = getRandom().nextInt(size);
+
+        ListIterator<Integer> iterator = vList.listIterator();
+
+        int counter = 0;
+        while (iterator.hasNext()) {
+            if (counter == index) {
+                iterator.add(element);
+            }
+            iterator.next();
+            counter++;
+        }
+
+        // check that the add command was reported
+        Assert.assertTrue("We expected one change, got: "
+                + changes.size(), changes.size() == 1);
+        // check whether the added element matches the reported element
+        Assert.assertEquals(element, changes.get(0).elements().get(0));
+        // check whether the index of the added element matches the reported
+        // index
+        Assert.assertEquals(index, changes.get(0).indices()[0]);
+    }
+
+    private void createIteratorRemoveTest(int size) {
+        // creates a list with size random integers
+        List<Integer> aList = new ArrayList<>();
+        addRandomInts(size, aList);
+
+        // wrap this list in an observable vlist
+        VList<Integer> vList = VList.newInstance(aList);
+
+        // record all 'remove' events
+        List<VListChange<Integer>> changes = new ArrayList<>();
+        vList.addListChangeListener(evt -> {
+            if (evt.wasRemoved()) {
+                changes.add(evt.getRemoved());
+            }
+        });
+
+        // index where to remove the element
+        int index = getRandom().nextInt(size);
+        // element to remove
+        Integer element = vList.get(index);
+
+        ListIterator<Integer> iterator = vList.listIterator();
+
+        int counter = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            if (counter == index) {
+                iterator.remove();
+            }
+            counter++;
+        }
+
+        // check that the remove command was reported
+        Assert.assertTrue("We expected one change, got: "
+                + changes.size(), changes.size() == 1);
+        // check whether the removed element matches the reported element
+        Assert.assertEquals(element, changes.get(0).elements().get(0));
+        // check whether the index of the removed element matches the reported
+        // index
+        Assert.assertEquals(index, changes.get(0).indices()[0]);
+    }
+
+    private void createIteratorSetTest(int size) {
+        // creates a list with size random integers
+        List<Integer> aList = new ArrayList<>();
+        addRandomInts(size, aList);
+
+        // wrap this list in an observable vlist
+        VList<Integer> vList = VList.newInstance(aList);
+
+        // record all 'add' and remove events
+        List<VListChange<Integer>> added = new ArrayList<>();
+        List<VListChange<Integer>> removed = new ArrayList<>();
+        vList.addListChangeListener(evt -> {
+            added.add(evt.getAdded());
+            removed.add(evt.getRemoved());
+        });
+
+        // index where to set the element
+        int index = getRandom().nextInt(size);
+        // element to set
+        Integer element = getRandom().nextInt();
+        Integer prevElement = vList.get(index);
+
+        ListIterator<Integer> iterator = vList.listIterator();
+
+        int counter = 0;
+        while (iterator.hasNext()) {
+            iterator.next();
+            if (counter == index) {
+                iterator.set(element);
+            }
+            counter++;
+        }
+        // check that the remove command was reported
+        Assert.assertTrue("We expected one change, got: "
+                + removed.size(), removed.size() == 1);
+        // check that the add command was reported
+        Assert.assertTrue("We expected one change, got: "
+                + added.size(), added.size() == 1);
+        // check whether the removed element matches the reported element
+        Assert.assertEquals(prevElement, removed.get(0).elements().get(0));
+        // check whether the index of the removed element matches the reported
+        // index
+        Assert.assertEquals(index, removed.get(0).indices()[0]);
+        // check whether the removed element matches the reported element
+        Assert.assertEquals(element, added.get(0).elements().get(0));
+        // check whether the index of the removed element matches the reported
+        // index
+        Assert.assertEquals(index, added.get(0).indices()[0]);
     }
 
     private static long seed = 0;
