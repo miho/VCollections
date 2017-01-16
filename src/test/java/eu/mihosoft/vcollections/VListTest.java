@@ -12,8 +12,8 @@ import java.util.stream.IntStream;
 /**
  * Created by miho on 16.01.2017.
  */
-
 public class VListTest {
+
     @Test
     public void wrapListEqualsTest() {
         List<Integer> aList = new ArrayList<>();
@@ -31,7 +31,6 @@ public class VListTest {
         Assert.assertEquals(aList, vList);
 
         // after removing elements, they must still be equal
-
         vList.remove(3);
 
         // wrapped list must equal to plain list
@@ -41,22 +40,21 @@ public class VListTest {
 
     @Test
     public void changeOnAddNotificationTest() {
-        for(int i = 0; i < 100;i++) {
-
-            int size = Math.max(1,new Random().nextInt(100));
+        for (int i = 0; i < 100; i++) {
+            int size = Math.max(1, getRandom().nextInt(100));
 
             createAddElementsToTheEndTest(size);
             createAddElementsAtRandomPositionTest(size);
 
-            int numberOfElementsToAdd = Math.max(1,new Random().nextInt(100));
-            createAddCollectionToListTest(size,numberOfElementsToAdd);
+            int numberOfElementsToAdd = Math.max(1, getRandom().nextInt(100));
+            createAddCollectionToListTest(size, numberOfElementsToAdd);
         }
     }
 
+    private void createAddCollectionToListTest(
+            int listSize, int numberOfElementsToAdd) {
 
-    private void createAddCollectionToListTest(int listSize, int numberOfElementsToAdd) {
-
-        // creates a list with n1 random integers
+        // creates a list with listSize random integers
         List<Integer> aList = new ArrayList<>();
         addRandomInts(listSize, aList);
 
@@ -71,10 +69,11 @@ public class VListTest {
             }
         });
 
-
+        // determine elements that shall be added
         List<Integer> elementsToAdd = new ArrayList<>();
         addRandomInts(numberOfElementsToAdd, elementsToAdd);
 
+        // add the elements
         vList.addAll(elementsToAdd);
 
         // changes must contain n2 added elements in one change object that equals
@@ -86,12 +85,13 @@ public class VListTest {
         Assert.assertEquals(elementsToAdd, changes.get(0).elements());
 
         // index array must match indices of added elements
-        int[] indices = IntStream.range(listSize, listSize + numberOfElementsToAdd).toArray();
+        int[] indices = IntStream.range(listSize,
+                listSize + numberOfElementsToAdd).toArray();
         Assert.assertArrayEquals(indices, changes.get(0).indices());
     }
 
     private void createAddElementsAtRandomPositionTest(int size) {
-        // creates a list with n1 random integers
+        // creates a list with size random integers
         List<Integer> aList = new ArrayList<>();
         addRandomInts(size, aList);
 
@@ -106,17 +106,16 @@ public class VListTest {
             }
         });
 
-
         // add one element at a random position
-        Integer intElemToAddAtPos1 = new Random().nextInt();
-        int pos1 = new Random().nextInt(vList.size());
+        Integer intElemToAddAtPos1 = getRandom().nextInt();
+        int pos1 = getRandom().nextInt(vList.size());
         vList.add(pos1, intElemToAddAtPos1);
         Assert.assertTrue("We expected one change.", changes.size() == 1);
         Assert.assertEquals(changes.get(0).indices()[0], pos1);
     }
 
     private void createAddElementsToTheEndTest(int size) {
-        // creates a list with n1 random integers
+        // creates a list with size random integers
         List<Integer> aList = new ArrayList<>();
         addRandomInts(size, aList);
 
@@ -132,8 +131,8 @@ public class VListTest {
         });
 
         // add two random elements to the end of the list
-        Integer intElemToAdd1 = new Random().nextInt();
-        Integer intElemToAdd2 = new Random().nextInt();
+        Integer intElemToAdd1 = getRandom().nextInt();
+        Integer intElemToAdd2 = getRandom().nextInt();
         vList.add(intElemToAdd1);
         vList.add(intElemToAdd2);
         Assert.assertTrue("We expected two changes.", changes.size() == 2);
@@ -145,30 +144,32 @@ public class VListTest {
 
     @Test
     public void changeOnRemoveNotificationTest() {
-        for(int i = 0; i < 100;i++) {
+        for (int i = 0; i < 100; i++) {
 
-            int size = Math.max(1,new Random().nextInt(100));
+            int size = Math.max(1, getRandom().nextInt(100));
 
             createRemoveElementFromListTest(size);
             createRemoveElementFromSpecificLocationTest(size);
 
-            int numberOfElementsToRemove = Math.max(1,new Random().nextInt(100));
-            createRemoveMultipleElementsFromListTest(size, numberOfElementsToRemove);
+            int numberOfElementsToRemove
+                    = Math.max(1, getRandom().nextInt(100));
+            createRemoveMultipleElementsFromListTest(
+                    size, numberOfElementsToRemove);
         }
     }
 
     @Test
     public void changeOnRetainNotificationTest() {
-        for(int i = 0; i < 100;i++) {
-            int size = Math.max(2,new Random().nextInt(100));
-            int numberOfElementsToRetain = Math.max(1,size);
-            createRetainInListTest(size,numberOfElementsToRetain);
+        for (int i = 0; i < 100; i++) {
+            int size = Math.max(2, getRandom().nextInt(100));
+            createRetainInListTest(size);
         }
     }
 
-    private void createRemoveMultipleElementsFromListTest(int size, int n2) {
+    private void createRemoveMultipleElementsFromListTest(int size,
+            int numberOfElementsToRemove) {
 
-        // creates a list with n1 random integers
+        // creates a list with size random integers
         List<Integer> aList = new ArrayList<>();
         addRandomInts(size, aList);
 
@@ -183,40 +184,39 @@ public class VListTest {
             }
         });
 
-
         //remove multiple elements
-
         List<Integer> elementsToRemove = new ArrayList<>();
-        addRandomInts(n2, elementsToRemove);
+        addRandomInts(numberOfElementsToRemove, elementsToRemove);
         // add the elements that will later be removed to the original list
         // pro prevent unwanted event generation
         aList.addAll(elementsToRemove);
 
+        // remove the elements
         vList.removeAll(elementsToRemove);
 
-        // changes must contain n2 added elements in one change object that equals
-        // the elementsToAdd list
+        // changes must contain elementsToRemove added elements in one change
+        // the elementsToAdd list object that equals
         Assert.assertTrue("change list must contain one element",
                 changes.size() == 1);
-        Assert.assertTrue("change object must contain n2 elements, only contains: " +
-                        changes.get(0).elements().size(),
-                changes.get(0).elements().size() == n2);
+        
+        // test whether the reported elements are equal to the removed elements
         Assert.assertEquals(elementsToRemove, changes.get(0).elements());
 
         // index array must match indices of added elements
-        int[] indices = IntStream.range(size, size + n2).toArray();
+        int[] indices = IntStream.range(size,
+                size + numberOfElementsToRemove).toArray();
         Assert.assertArrayEquals(indices, changes.get(0).indices());
     }
 
-    private void createRemoveElementFromSpecificLocationTest(int n1) {
-        // creates a list with n1 random integers
+    private void createRemoveElementFromSpecificLocationTest(int size) {
+        // creates a list with size random integers
         List<Integer> aList = new ArrayList<>();
-        addRandomInts(n1, aList);
+        addRandomInts(size, aList);
 
         // wrap this list in an observable vlist
         VList<Integer> vList = VList.newInstance(aList);
 
-        // record all 'add' events
+        // record all 'remove' events
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
             if (evt.wasRemoved()) {
@@ -224,40 +224,55 @@ public class VListTest {
             }
         });
 
-        // remove from specific position
-        int posToRemove2 = new Random().nextInt(vList.size());
+        // determine position of element to remove
+        int posToRemove2 = getRandom().nextInt(vList.size());
+        // get element to remove
         Integer intElemToRemove2 = vList.get(posToRemove2);
+        // remove element
         vList.remove(posToRemove2);
-        Assert.assertTrue("We expected one change, got: " + changes.size(), changes.size() == 1);
+        
+        // check that the remove command was reported
+        Assert.assertTrue("We expected one change, got: "
+                + changes.size(), changes.size() == 1);
+        // check that the reported index matches the actual index
         Assert.assertEquals(changes.get(0).indices()[0], posToRemove2);
+        // check that the reported element matches the actual element
         Assert.assertEquals(intElemToRemove2, changes.get(0).elements().get(0));
     }
 
     private void createRemoveElementFromListTest(int size) {
+        
+        // initialize vlist
         List<Integer> aList = new ArrayList<>();
         addRandomInts(size, aList);
-
         VList<Integer> vList = VList.newInstance(aList);
-
+        
+        // record all 'remove' events
         List<VListChange<Integer>> changes = new ArrayList<>();
-
         vList.addListChangeListener(evt -> {
             changes.add(evt.getRemoved());
         });
 
-        int posToRemove1 = new Random().nextInt(vList.size());
-
+        // determin position of element to remove
+        int posToRemove1 = getRandom().nextInt(vList.size());
+        // get element to remove
         Integer intElemToRemove1 = vList.get(posToRemove1);
+        // remove element
         vList.remove(intElemToRemove1);
-        Assert.assertTrue("We expected one changes, got: " + changes.size(), changes.size() == 1);
+        
+        // test whether change was reported
+        Assert.assertTrue("We expected one changes, got: "
+                + changes.size(), changes.size() == 1);
+        // check that the reported element equals the element that has been
+        // removed
         Assert.assertEquals(intElemToRemove1, changes.get(0).elements().get(0));
+        // check that the reported index is equal to the actual index
         Assert.assertEquals(posToRemove1, changes.get(0).indices()[0]);
     }
 
+    private void createRetainInListTest(int size) {
 
-    private void createRetainInListTest(int size, int numberOfElementsToRetain) {
-
-        // creates a list with n1 random integers
+        // creates a list with size random integers
         List<Integer> aList = new ArrayList<>();
         addRandomInts(size, aList);
 
@@ -272,33 +287,58 @@ public class VListTest {
             }
         });
 
-        int firstIndex = new Random().nextInt(size-1);
-        int secondIndex= 0;
-
-        while(secondIndex <= firstIndex) {
-            secondIndex = new Random().nextInt(size);
+        // finding indices of retained elements
+        int firstIndex = getRandom().nextInt(size - 1);
+        int secondIndex = 0;
+        while (secondIndex <= firstIndex) {
+            secondIndex = getRandom().nextInt(size);
         }
         int secondIndexFinal = secondIndex;
 
-        List<Integer> elementsToRetain = new ArrayList(vList.subList(firstIndex,secondIndex));
+        // copy elements to retain
+        List<Integer> elementsToRetain
+                = new ArrayList(vList.subList(firstIndex, secondIndex));
         vList.retainAll(elementsToRetain);
-
-        Assert.assertEquals(vList.size(),elementsToRetain.size());
-        Assert.assertEquals(size-elementsToRetain.size(), changes.get(0).elements().size());
-        Assert.assertEquals(elementsToRetain,vList);
-        int[] removedIndices = IntStream.range(0,size).filter(i->i<firstIndex || i >= secondIndexFinal).toArray();
-
+        
+        // test whether list only contains retained elements
+        Assert.assertEquals(elementsToRetain, vList);
+        
+        // compute expected indices
+        int[] removedIndices = IntStream.range(0, size).filter(
+                i -> i < firstIndex || i >= secondIndexFinal).toArray();
+        
+        // test whether reported index array equals the expected indices
         Assert.assertArrayEquals(removedIndices, changes.get(0).indices());
     }
 
+    private static long seed = 0;
+    private static Random random = null;
+
+    public static long getSeed() {
+        if (seed == 0) {
+            seed = System.currentTimeMillis();
+            System.out.println(">> Performing tests with seed " + seed);
+        }
+
+        return seed;
+    }
+
+    public static Random getRandom() {
+        if (random == null) {
+            System.out.println(">> Initializing Random Generator");
+            random = new Random(getSeed());
+        }
+
+        return random;
+    }
 
     private void addRandomInts(int length, List<Integer> list) {
-        list.addAll(new Random().ints(length).boxed().
+        list.addAll(getRandom().ints(length).boxed().
                 collect(Collectors.toList()));
     }
 
     private void addRandomDoubles(int length, List<Double> list) {
-        list.addAll(new Random().doubles(length).boxed().
+        list.addAll(getRandom().doubles(length).boxed().
                 collect(Collectors.toList()));
     }
 }
