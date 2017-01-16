@@ -162,7 +162,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
         int index = 0;
 
         if (hasListeners()) {
-            index = indexOf(e);
+            index = size();
         }
 
         boolean result = originalList.add(e);
@@ -344,7 +344,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         if (hasListeners()) {
             _vmf_fireChangeEvent(VListChangeEvent.
-                    getRemovedEvent(this,
+                    getAddedEvent(this,
                             new int[]{index},
                             Arrays.asList(element)));
         }
