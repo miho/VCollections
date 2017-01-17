@@ -154,6 +154,15 @@ public interface VListChangeEvent<T> {
                 VListChange.newInstance(indices, elementsAdded),
                 VListChange.newInstance(indices, elementsRemoved));
     }
+    
+    /**
+     * Returns a detailed string representation of this object, including
+     * added and removedelements.
+     * 
+     * @return  a detailed string representation of this object, including
+     * added and removedelements
+     */
+    public String toStringWithDetails();
 }
 
 /**
@@ -212,6 +221,7 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
                 + ", #removed=" + getRemoved().elements().size();
     }
 
+    @Override
     public String toStringWithDetails() {
         
         StringBuilder sb = new StringBuilder();
