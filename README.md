@@ -3,6 +3,8 @@
 
 Lightweight observable collections (used by VMF and [VRL](http://vrl-studio.mihosoft.eu)).
 
+**UPDATE: we might switch to another event API. Expect changes...**
+
 ## Features
 - Observable List
 - Mapped List (keeps two lists with different element types in sync)
