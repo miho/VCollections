@@ -161,7 +161,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
         int index = 0;
 
         if (hasListeners()) {
-            index = indexOf(e);
+            index = size();
         }
 
         boolean result = originalList.add(e);
@@ -343,7 +343,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         if (hasListeners()) {
             _vmf_fireChangeEvent(VListChangeEvent.
-                    getRemovedEvent(this,
+                    getAddedEvent(this,
                             new int[]{index},
                             Arrays.asList(element)));
         }
@@ -478,6 +478,8 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     private static class VListIterator<V> implements ListIterator<V> {
 
         private final VListImpl<V> parent;
+        private int lastIndex = -1;
+        private V lastElement;
 
         public VListIterator(VListImpl<V> parent, int index) {
             this.parent = parent;
@@ -507,12 +509,11 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
             if (parent.hasListeners()) {
                 int removeIndex = previousIndex();
-                V element = parent.get(previousIndex());
                 parent._vmf_fireChangeEvent(
                         VListChangeEvent.getRemovedEvent(
                                 parent,
                                 new int[]{removeIndex},
-                                Arrays.asList(element)));
+                                Arrays.asList(lastElement)));
             }
 
             originalIterator.remove();
@@ -529,7 +530,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
                 if (parent.isEmpty()) {
                     elementBefore = Collections.EMPTY_LIST;
                 } else {
-                    elementBefore = Arrays.asList(parent.get(setIndex));
+                    elementBefore = Arrays.asList(lastElement);
                 }
             }
 
@@ -551,7 +552,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         @Override
         public V next() {
-            return originalIterator.next();
+            return lastElement = originalIterator.next();
         }
 
         @Override
@@ -561,17 +562,17 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         @Override
         public V previous() {
-            return originalIterator.previous();
+            return lastElement = originalIterator.previous();
         }
 
         @Override
         public int nextIndex() {
-            return originalIterator.nextIndex();
+            return lastIndex = originalIterator.nextIndex();
         }
 
         @Override
         public int previousIndex() {
-            return originalIterator.previousIndex();
+            return lastIndex = originalIterator.previousIndex();
         }
     };
 
