@@ -229,10 +229,10 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
         int numAdded = this.getAdded().elements().size();
         int numRemoved = this.getRemoved().elements().size();
 
-        sb.append("#removed: ").append(numRemoved).append(", added: ").
-                append(numAdded).append("\n");
+        sb.append("event: [#removed: ").append(numRemoved).append(", #added: ").
+                append(numAdded).append("]\n");
 
-        sb.append("removed-indices = [");
+        sb.append("removed-indices  = [");
         for (int i = 0; i < numRemoved; i++) {
             if (i > 0) {
                 sb.append(", ");
