@@ -40,8 +40,8 @@ import java.util.List;
 /**
  * List change support for managing and notifying listeners.
  *
- * @author Michael Hoffer <info@michaelhoffer.de>
  * @param <T> element type
+ * @author Michael Hoffer <info@michaelhoffer.de>
  */
 public final class VListChangeSupport<T> implements VListObservable<T> {
 
@@ -49,8 +49,9 @@ public final class VListChangeSupport<T> implements VListObservable<T> {
     private final List<VListChangeListener<T>> listeners = new ArrayList<>();
 
     @Override
-    public boolean addListChangeListener(VListChangeListener<T> l) {
-        return listeners.add(l);
+    public VListChangeListener<T> addListChangeListener(VListChangeListener<T> l) {
+        listeners.add(l);
+        return l;
     }
 
     @Override

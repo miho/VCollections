@@ -47,17 +47,15 @@ public interface VListObservable<T> {
      * about every modification made to this list.
      *
      * @param l listener to add
-     * @return {@code true} if this listener is added to this list;
-     * {@code false} otherwise (if the listener has already been added to this
-     * list)
+     * @return the listener that has been added to this observable
      */
-    boolean addListChangeListener(VListChangeListener<T> l);
+    VListChangeListener<T> addListChangeListener(VListChangeListener<T> l);
 
     /**
      * Removes the specified listener from this list.
      *
      * @param l listener to remove
-     * @return {@code true} if this listener is removed from this list;
+     * @return {@code true} if this listener is removed from this observable;
      * {@code false} otherwise (if the listener has already been removed from
      * this list)
      */
