@@ -6,7 +6,7 @@ Lightweight observable collections (used by VMF and [VRL](http://vrl-studio.miho
 ## Features
 - Observable List
 - Mapped List (keeps two lists with different element types in sync)
-- comming soon: ObservableMap and ObservableSet
+- coming soon: ObservableMap and ObservableSet
 
 ## Code Sample
 
