@@ -215,10 +215,10 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
     }
 
     @Override
-    public boolean addListChangeListener(VListChangeListener<T> l) {
+    public VListChangeListener<T> addListChangeListener(VListChangeListener<T> l) {
 
         if (listenerMap.containsKey(l)) {
-            return false;
+            return l;
         }
 
         // mapping list change events
