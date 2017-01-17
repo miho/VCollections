@@ -236,7 +236,9 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
         };
 
         listenerMap.put(l, mappedListener);
-        return originalList.addListChangeListener(mappedListener);
+        originalList.addListChangeListener(mappedListener);
+
+        return l;
     }
 
     @Override
