@@ -36,7 +36,7 @@ public class Main {
         vList.remove((Integer) 2);
         vList.remove((Integer) 3);
 
-        // remove collection of elements (generates only one events)
+        // remove collection of elements (generates only one event)
         System.out.println(">> remove 3 individual elements");
         vList.removeAll(Arrays.asList(4,5,6));
     }
