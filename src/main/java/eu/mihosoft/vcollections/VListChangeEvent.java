@@ -212,4 +212,53 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
                 + ", #removed=" + getRemoved().elements().size();
     }
 
+    public String toStringWithDetails() {
+        
+        StringBuilder sb = new StringBuilder();
+
+        int numAdded = this.getAdded().elements().size();
+        int numRemoved = this.getRemoved().elements().size();
+
+        sb.append("#removed: ").append(numRemoved).append(", added: ").
+                append(numAdded).append("\n");
+
+        sb.append("removed-indices = [");
+        for (int i = 0; i < numRemoved; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(this.getRemoved().indices()[i]);
+        }
+        sb.append("]\n");
+
+        sb.append("removed-elements = [");
+        for (int i = 0; i < numRemoved; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(this.getRemoved().elements().get(i));
+        }
+        sb.append("]\n");
+
+        sb.append("added-indices    = [");
+        for (int i = 0; i < numAdded; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(this.getAdded().indices()[i]);
+        }
+        sb.append("]\n");
+
+        sb.append("added-elements   = [");
+        for (int i = 0; i < numAdded; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(this.getAdded().elements().get(i));
+        }
+        sb.append("]\n");
+        
+        return sb.toString();
+    }
+
 }
