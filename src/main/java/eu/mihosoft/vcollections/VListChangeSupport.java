@@ -45,41 +45,26 @@ import java.util.List;
  */
 public final class VListChangeSupport<T> implements VListObservable<T> {
 
-    // the registered listeners
-    private final List<CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>>> listeners = new ArrayList<>();
+    private final List<CollectionChangeListener> listeners = new ArrayList<>();
 
     @Override
-    public CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> addListChangeListener(CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> l) {
-        listeners.add(l);
-
-        return l;
+    public boolean addListChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+        return listeners.add(l);
     }
 
     @Override
-    public boolean removeListChangeListener(CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> l) {
+    public boolean removeListChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
         return listeners.remove(l);
     }
 
-    /**
-     * Fires the specified event and notifies all registered listeners.
-     *
-     * @param evt event to fire
-     */
-    public void fireEvent(VListChangeEvent<T> evt) {
-        listeners.stream().forEach((l) -> {
-            l.onChange(evt);
-        });
+    public void fireEvent(CollectionChangeEvent<T, ? super VList<T>, ? super VListChange<T>> evt) {
+        for (CollectionChangeListener listener : listeners) {
+            listener.onChange(evt);
+        }
     }
 
-    /**
-     * Indicates whether listeners are currently registered. This method can be
-     * used to increase efficiency and prevent unnecessary event generation.
-     *
-     * @return {@code true} if listeners are currently registered with this list
-     * change support; {@code false} otherwise
-     */
     public boolean hasListeners() {
-        return !listeners.isEmpty();
+        return true;
     }
 
 }

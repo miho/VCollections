@@ -36,14 +36,10 @@ package eu.mihosoft.vcollections;
 
 /**
  * List observable.
- * 
+ *
  * @author Michael Hoffer <info@michaelhoffer.de>
  * @param <T>
  */
-public interface VListObservable<T> extends CollectionObservable<T,
-        VListChangeEvent<T>,
-        VList<T>, VListChange<T>
-        >{
-
+public interface VListObservable<T> extends CollectionObservable<T, VList<T>, VListChange<T>> {
 
 }

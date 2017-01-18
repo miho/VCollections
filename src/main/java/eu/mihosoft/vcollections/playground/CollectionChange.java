@@ -3,25 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.mihosoft.vcollections;
+package eu.mihosoft.vcollections.playground;
 
 import java.util.List;
 
 /**
  * 
  * @author Michael Hoffer <info@michaelhoffer.de>
- * @param <T> element type of the collection
+ * @param <T> 
  */
-interface ListChange<T> extends CollectionChange<T>{
-
-    /**
-     * @return the indices of the changed elements
-     */
-    int[] indices();
-
-    /**
-     * @return changed elements
-     */
-    @Override
+interface CollectionChange<T> {
     List<T> elements();
 }

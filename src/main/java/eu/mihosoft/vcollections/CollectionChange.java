@@ -8,9 +8,10 @@ package eu.mihosoft.vcollections;
 import java.util.List;
 
 /**
- *
- * @author miho
+ * 
+ * @author Michael Hoffer <info@michaelhoffer.de>
+ * @param <T> element type os the collection
  */
-interface CollectionChange<T> {
+public interface CollectionChange<T> {
     List<T> elements();
 }

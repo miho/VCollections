@@ -45,6 +45,7 @@ import java.util.List;
  * opperation (removed elements are replaced by added elements).
  *
  * @author Michael Hoffer <info@michaelhoffer.de>
+ * @param <T> element type of the collection
  */
 public interface VListChangeEvent<T> extends CollectionChangeEvent<T, VList<T>, VListChange<T>>{
 

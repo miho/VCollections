@@ -60,7 +60,7 @@ public interface VList<T> extends List<T>, VListObservable<T> {
     /**
      * Creates a new wrapper around the specified list. Modifying the wrapper
      * will modify the wrapped list.
-     * 
+     *
      * @param <T> element type
      * @param list list to wrap
      * @return new {@link VList} that wraps the specified list
@@ -95,26 +95,10 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
         return listChangeSupport != null;
     }
 
-    private void _vmf_fireChangeEvent(VListChangeEvent<T> evt) {
+    private void _vmf_fireChangeEvent(CollectionChangeEvent<T, ? super VList<T>, ? super VListChange<T>> evt) {
         if (hasListeners()) {
             listChangeSupport.fireEvent(evt);
         }
-    }
-
-    @Override
-    public CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> addListChangeListener(CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> l) {
-        return getListChangeSupport().addListChangeListener(l);
-    }
-
-    @Override
-    public boolean removeListChangeListener(CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> l) {
-        boolean result = getListChangeSupport().removeListChangeListener(l);
-
-        if (!getListChangeSupport().hasListeners()) {
-            listChangeSupport = null;
-        }
-
-        return result;
     }
 
     private VListImpl(List<T> originalList) {
@@ -474,6 +458,38 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             originalList.sort(comparator);
         }
     }
+
+    @Override
+    public boolean addListChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+        return getListChangeSupport().addListChangeListener(l);
+    }
+
+    @Override
+    public boolean removeListChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+        boolean result = getListChangeSupport().removeListChangeListener(l);
+
+        if (!getListChangeSupport().hasListeners()) {
+            listChangeSupport = null;
+        }
+
+        return result;
+    }
+
+//    @Override
+//    public boolean addListChangeListener(CollectionChangeListener<T, ? super VListChangeEvent<T>, ? super VList<T>, ? super VListChange<T>> l) {
+//        return getListChangeSupport().addListChangeListener(l);
+//    }
+//
+//    @Override
+//    public boolean removeListChangeListener(CollectionChangeListener<T, ? super VListChangeEvent<T>, ? super VList<T>, ? super VListChange<T>> l) {
+//        boolean result = getListChangeSupport().removeListChangeListener(l);
+//
+//        if (!getListChangeSupport().hasListeners()) {
+//            listChangeSupport = null;
+//        }
+//
+//        return result;
+//    }
 
     private static class VListIterator<V> implements ListIterator<V> {
 

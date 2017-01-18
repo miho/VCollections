@@ -40,12 +40,7 @@ package eu.mihosoft.vcollections;
  * @author Michael Hoffer <info@michaelhoffer.de>
  */
 @FunctionalInterface
-public interface VListChangeListener<T> extends CollectionChangeListener<
-        T,
-        VListChangeEvent<T>,
-        VList<T>,
-        VListChange<T>
-        >{
+public interface VListChangeListener<T> extends CollectionChangeListener<T, VList<T>, VListChange<T>> {
 
     /**
      * This method is called whenever the observed list changes.
@@ -54,5 +49,6 @@ public interface VListChangeListener<T> extends CollectionChangeListener<
      * elements have been changed
      */
     @Override
-    void onChange(VListChangeEvent<T> evt);
+    public void onChange(CollectionChangeEvent<T, VList<T>, VListChange<T>> evt);
+
 }

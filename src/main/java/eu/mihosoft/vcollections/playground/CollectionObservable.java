@@ -3,18 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.mihosoft.vcollections;
+package eu.mihosoft.vcollections.playground;
 
+import eu.mihosoft.vcollections.*;
 import java.util.Collection;
 
 /**
- * 
- * @author Michael Hoffer <info@michaelhoffer.de>
- * @param <T> element type of the collection
- * @param <OC> observed collection type
- * @param <CC> collection change type
+ *
+ * @author miho
  */
-public interface CollectionObservable<T, OC extends Collection<T>, CC extends CollectionChange<T>> {
+public interface CollectionObservable<T, CCE extends CollectionChangeEvent<T, CO, CC>, CO extends Collection<T>, CC extends CollectionChange<T>> {
 
     /**
      * Adds the specified listener to this list. The listener will be notified
@@ -23,7 +21,7 @@ public interface CollectionObservable<T, OC extends Collection<T>, CC extends Co
      * @param l listener to add
      * @return the listener that has been added to this observable
      */
-    boolean addListChangeListener(CollectionChangeListener<T, ? super OC, ? super CC> l);
+    CollectionChangeListener<T, CCE, CO, CC> addListChangeListener(CollectionChangeListener<T, ?, ?, ?> l);
 
     /**
      * Removes the specified listener from this list.
@@ -33,5 +31,5 @@ public interface CollectionObservable<T, OC extends Collection<T>, CC extends Co
      * {@code false} otherwise (if the listener has already been removed from
      * this list)
      */
-    boolean removeListChangeListener(CollectionChangeListener<T, ? super OC, ? super CC> l);
+    boolean removeListChangeListener(CollectionChangeListener<T, ?, ?, ?> l);
 }
