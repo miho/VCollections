@@ -101,7 +101,7 @@ public class VListTest {
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
             if (evt.wasAdded()) {
-                changes.add(evt.getAdded());
+                changes.add(evt.added());
             }
         });
 
@@ -138,7 +138,7 @@ public class VListTest {
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
             if (evt.wasAdded()) {
-                changes.add(evt.getAdded());
+                changes.add(evt.added());
             }
         });
 
@@ -162,7 +162,7 @@ public class VListTest {
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
             if (evt.wasAdded()) {
-                changes.add(evt.getAdded());
+                changes.add(evt.added());
             }
         });
 
@@ -216,7 +216,7 @@ public class VListTest {
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
             if (evt.wasRemoved()) {
-                changes.add(evt.getRemoved());
+                changes.add(evt.removed());
             }
         });
 
@@ -256,7 +256,7 @@ public class VListTest {
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
             if (evt.wasRemoved()) {
-                changes.add(evt.getRemoved());
+                changes.add(evt.removed());
             }
         });
 
@@ -286,7 +286,7 @@ public class VListTest {
         // record all 'remove' events
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
-            changes.add(evt.getRemoved());
+            changes.add(evt.removed());
         });
 
         // determin position of element to remove
@@ -319,7 +319,7 @@ public class VListTest {
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
             if (evt.wasRemoved()) {
-                changes.add(evt.getRemoved());
+                changes.add(evt.removed());
             }
         });
 
@@ -367,8 +367,8 @@ public class VListTest {
         List<VListChange<Integer>> added = new ArrayList<>();
         List<VListChange<Integer>> removed = new ArrayList<>();
         vList.addListChangeListener(evt -> {
-            added.add(evt.getAdded());
-            removed.add(evt.getRemoved());
+            added.add(evt.added());
+            removed.add(evt.removed());
         });
 
         // index where to set the element
@@ -419,7 +419,7 @@ public class VListTest {
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
             if (evt.wasAdded()) {
-                changes.add(evt.getAdded());
+                changes.add(evt.added());
             }
         });
 
@@ -461,7 +461,7 @@ public class VListTest {
         List<VListChange<Integer>> changes = new ArrayList<>();
         vList.addListChangeListener(evt -> {
             if (evt.wasRemoved()) {
-                changes.add(evt.getRemoved());
+                changes.add(evt.removed());
             }
         });
 
@@ -503,8 +503,8 @@ public class VListTest {
         List<VListChange<Integer>> added = new ArrayList<>();
         List<VListChange<Integer>> removed = new ArrayList<>();
         vList.addListChangeListener(evt -> {
-            added.add(evt.getAdded());
-            removed.add(evt.getRemoved());
+            added.add(evt.added());
+            removed.add(evt.removed());
         });
 
         // index where to set the element
