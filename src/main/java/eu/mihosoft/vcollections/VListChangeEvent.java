@@ -46,7 +46,7 @@ import java.util.List;
  *
  * @author Michael Hoffer <info@michaelhoffer.de>
  */
-public interface VListChangeEvent<T> {
+public interface VListChangeEvent<T> extends CollectionChangeEvent<T, VList<T>, VListChange<T>>{
 
     /**
      * Indicates whether elements were added during this event.
@@ -54,6 +54,7 @@ public interface VListChangeEvent<T> {
      * @return {@code true} if elements were added during this event;
      * {@code false} otherwise
      */
+    @Override
     boolean wasAdded();
 
     /**
@@ -62,6 +63,7 @@ public interface VListChangeEvent<T> {
      * @return {@code true} if elements were removed during this event;
      * {@code false} otherwise
      */
+    @Override
     boolean wasRemoved();
 
     /**
@@ -70,6 +72,7 @@ public interface VListChangeEvent<T> {
      * @return {@code true} if elements were set during this event;
      * {@code false} otherwise
      */
+    @Override
     boolean wasSet();
 
     /**
@@ -79,6 +82,7 @@ public interface VListChangeEvent<T> {
      * @return the change that contains all elements that were added during this
      * event
      */
+    @Override
     VListChange<T> added();
 
     /**
@@ -88,6 +92,7 @@ public interface VListChangeEvent<T> {
      * @return the change that contains all elements that were removed during
      * this event
      */
+    @Override
     VListChange<T> removed();
 
     /**
@@ -95,7 +100,8 @@ public interface VListChangeEvent<T> {
      *
      * @return the source list
      */
-    List<T> source();
+    @Override
+    VList<T> source();
 
     /**
      * Returns an event that contains the changes produced by the specified
@@ -108,7 +114,7 @@ public interface VListChangeEvent<T> {
      * @return an event that contains the changes produced by the specified
      * 'add(..)' operation
      */
-    static <V> VListChangeEvent<V> getAddedEvent(List<V> source,
+    static <V> VListChangeEvent<V> getAddedEvent(VList<V> source,
             int[] indices, List<V> elements) {
         return new VListChangeEventImpl<>(
                 source,
@@ -127,7 +133,7 @@ public interface VListChangeEvent<T> {
      * @return an event that contains the changes produced by the specified
      * 'remove(..)' operation
      */
-    static <V> VListChangeEvent<V> getRemovedEvent(List<V> source,
+    static <V> VListChangeEvent<V> getRemovedEvent(VList<V> source,
             int[] indices, List<V> elements) {
         return new VListChangeEventImpl<>(
                 source,
@@ -147,7 +153,7 @@ public interface VListChangeEvent<T> {
      * @return an event that contains the changes produced by the specified
      * 'set(..)' operation
      */
-    static <V> VListChangeEvent<V> getSetEvent(List<V> source,
+    static <V> VListChangeEvent<V> getSetEvent(VList<V> source,
             int[] indices, List<V> elementsRemoved, List<V> elementsAdded) {
         return new VListChangeEventImpl<>(
                 source,
@@ -173,12 +179,12 @@ public interface VListChangeEvent<T> {
  */
 class VListChangeEventImpl<T> implements VListChangeEvent<T> {
 
-    private final List<T> source;
+    private final VList<T> source;
 
     private final VListChange<T> added;
     private final VListChange<T> removed;
 
-    public VListChangeEventImpl(List<T> source, VListChange<T> added,
+    public VListChangeEventImpl(VList<T> source, VListChange<T> added,
             VListChange<T> removed) {
         this.source = source;
         this.added = added;
@@ -211,7 +217,7 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
     }
 
     @Override
-    public List<T> source() {
+    public VList<T> source() {
         return source;
     }
 

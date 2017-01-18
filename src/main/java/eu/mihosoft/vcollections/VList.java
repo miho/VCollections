@@ -102,12 +102,12 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     }
 
     @Override
-    public VListChangeListener<T> addListChangeListener(VListChangeListener<T> l) {
+    public CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> addListChangeListener(CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> l) {
         return getListChangeSupport().addListChangeListener(l);
     }
 
     @Override
-    public boolean removeListChangeListener(VListChangeListener<T> l) {
+    public boolean removeListChangeListener(CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> l) {
         boolean result = getListChangeSupport().removeListChangeListener(l);
 
         if (!getListChangeSupport().hasListeners()) {

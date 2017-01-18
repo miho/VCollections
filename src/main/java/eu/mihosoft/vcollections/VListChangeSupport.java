@@ -46,16 +46,17 @@ import java.util.List;
 public final class VListChangeSupport<T> implements VListObservable<T> {
 
     // the registered listeners
-    private final List<VListChangeListener<T>> listeners = new ArrayList<>();
+    private final List<CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>>> listeners = new ArrayList<>();
 
     @Override
-    public VListChangeListener<T> addListChangeListener(VListChangeListener<T> l) {
+    public CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> addListChangeListener(CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> l) {
         listeners.add(l);
+
         return l;
     }
 
     @Override
-    public boolean removeListChangeListener(VListChangeListener<T> l) {
+    public boolean removeListChangeListener(CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> l) {
         return listeners.remove(l);
     }
 
@@ -80,4 +81,5 @@ public final class VListChangeSupport<T> implements VListObservable<T> {
     public boolean hasListeners() {
         return !listeners.isEmpty();
     }
+
 }

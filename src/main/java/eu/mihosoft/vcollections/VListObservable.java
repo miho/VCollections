@@ -40,25 +40,10 @@ package eu.mihosoft.vcollections;
  * @author Michael Hoffer <info@michaelhoffer.de>
  * @param <T>
  */
-public interface VListObservable<T> {
+public interface VListObservable<T> extends CollectionObservable<T,
+        VListChangeEvent<T>,
+        VList<T>, VListChange<T>
+        >{
 
-    /**
-     * Adds the specified listener to this list. The listener will be notified
-     * about every modification made to this list.
-     *
-     * @param l listener to add
-     * @return the listener that has been added to this observable
-     */
-    VListChangeListener<T> addListChangeListener(VListChangeListener<T> l);
-
-    /**
-     * Removes the specified listener from this list.
-     *
-     * @param l listener to remove
-     * @return {@code true} if this listener is removed from this observable;
-     * {@code false} otherwise (if the listener has already been removed from
-     * this list)
-     */
-    boolean removeListChangeListener(VListChangeListener<T> l);
 
 }

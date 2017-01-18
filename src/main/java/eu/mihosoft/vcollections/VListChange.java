@@ -45,16 +45,18 @@ import java.util.Objects;
  *
  * @author Michael Hoffer <info@michaelhoffer.de>
  */
-public interface VListChange<T> {
+public interface VListChange<T> extends ListChange<T>{
 
     /**
      * @return the indices of the changed elements
      */
+    @Override
     int[] indices();
 
     /**
      * @return changed elements
      */
+    @Override
     List<T> elements();
 
     /**
