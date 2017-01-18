@@ -79,7 +79,7 @@ public interface VListChangeEvent<T> {
      * @return the change that contains all elements that were added during this
      * event
      */
-    VListChange<T> getAdded();
+    VListChange<T> added();
 
     /**
      * Returns the change that contains all elements that were removed during
@@ -88,14 +88,14 @@ public interface VListChangeEvent<T> {
      * @return the change that contains all elements that were removed during
      * this event
      */
-    VListChange<T> getRemoved();
+    VListChange<T> removed();
 
     /**
      * Returns the source list, e.g., the list that fired the change event
      *
      * @return the source list
      */
-    List<T> getSource();
+    List<T> source();
 
     /**
      * Returns an event that contains the changes produced by the specified
@@ -201,24 +201,24 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
     }
 
     @Override
-    public VListChange<T> getAdded() {
+    public VListChange<T> added() {
         return added;
     }
 
     @Override
-    public VListChange<T> getRemoved() {
+    public VListChange<T> removed() {
         return removed;
     }
 
     @Override
-    public List<T> getSource() {
+    public List<T> source() {
         return source;
     }
 
     @Override
     public String toString() {
-        return "event: #added=" + getAdded().elements().size()
-                + ", #removed=" + getRemoved().elements().size();
+        return "event: #added=" + added().elements().size()
+                + ", #removed=" + removed().elements().size();
     }
 
     @Override
@@ -226,8 +226,8 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
         
         StringBuilder sb = new StringBuilder();
 
-        int numAdded = this.getAdded().elements().size();
-        int numRemoved = this.getRemoved().elements().size();
+        int numAdded = this.added().elements().size();
+        int numRemoved = this.removed().elements().size();
 
         sb.append("event: [#removed: ").append(numRemoved).append(", #added: ").
                 append(numAdded).append("]\n");
@@ -237,7 +237,7 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
             if (i > 0) {
                 sb.append(", ");
             }
-            sb.append(this.getRemoved().indices()[i]);
+            sb.append(this.removed().indices()[i]);
         }
         sb.append("]\n");
 
@@ -246,7 +246,7 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
             if (i > 0) {
                 sb.append(", ");
             }
-            sb.append(this.getRemoved().elements().get(i));
+            sb.append(this.removed().elements().get(i));
         }
         sb.append("]\n");
 
@@ -255,7 +255,7 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
             if (i > 0) {
                 sb.append(", ");
             }
-            sb.append(this.getAdded().indices()[i]);
+            sb.append(this.added().indices()[i]);
         }
         sb.append("]\n");
 
@@ -264,7 +264,7 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
             if (i > 0) {
                 sb.append(", ");
             }
-            sb.append(this.getAdded().elements().get(i));
+            sb.append(this.added().elements().get(i));
         }
         sb.append("]\n");
         
