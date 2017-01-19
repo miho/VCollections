@@ -35,6 +35,7 @@
 package eu.mihosoft.vcollections;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -45,26 +46,29 @@ import java.util.List;
  */
 public final class VListChangeSupport<T> implements VListObservable<T> {
 
-    private final List<CollectionChangeListener> listeners = new ArrayList<>();
+    private final List<CollectionChangeListener/*<T, ? super VList<T>, ? super VListChange<T>>*/> listeners = new ArrayList<>();
 
     @Override
-    public boolean addListChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+    public boolean addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
         return listeners.add(l);
     }
 
     @Override
-    public boolean removeListChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+    public boolean removeChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
         return listeners.remove(l);
     }
 
+    @SuppressWarnings("unchecked")
     public void fireEvent(CollectionChangeEvent<T, ? super VList<T>, ? super VListChange<T>> evt) {
-        for (CollectionChangeListener listener : listeners) {
+        for (CollectionChangeListener/*<T, ? super VList<T>, ? super VListChange<T>>*/ listener : listeners) {
             listener.onChange(evt);
         }
     }
+
 
     public boolean hasListeners() {
         return true;
     }
 
 }
+

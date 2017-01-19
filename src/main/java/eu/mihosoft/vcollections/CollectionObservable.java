@@ -9,10 +9,11 @@ import java.util.Collection;
 
 /**
  * 
- * @author Michael Hoffer <info@michaelhoffer.de>
  * @param <T> element type of the collection
  * @param <OC> observed collection type
  * @param <CC> collection change type
+ * 
+ * @author Michael Hoffer (info@michaelhoffer.de)
  */
 public interface CollectionObservable<T, OC extends Collection<T>, CC extends CollectionChange<T>> {
 
@@ -21,17 +22,19 @@ public interface CollectionObservable<T, OC extends Collection<T>, CC extends Co
      * about every modification made to this list.
      *
      * @param l listener to add
+     * 
      * @return the listener that has been added to this observable
      */
-    boolean addListChangeListener(CollectionChangeListener<T, ? super OC, ? super CC> l);
+    boolean addChangeListener(CollectionChangeListener<T, ? super OC, ? super CC> l);
 
     /**
      * Removes the specified listener from this list.
      *
      * @param l listener to remove
+     * 
      * @return {@code true} if this listener is removed from this observable;
      * {@code false} otherwise (if the listener has already been removed from
      * this list)
      */
-    boolean removeListChangeListener(CollectionChangeListener<T, ? super OC, ? super CC> l);
+    boolean removeChangeListener(CollectionChangeListener<T, ? super OC, ? super CC> l);
 }

@@ -161,6 +161,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean remove(Object o) {
         int index = 0;
 
@@ -226,6 +227,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean removeAll(Collection<?> c) {
 
         int[] indices = null;
@@ -433,7 +435,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             List<Integer> indicesList = new ArrayList<>();
             List<T> changesRemoved = new ArrayList<>();
             List<T> changesAdded = new ArrayList<>();
-            List<T> beforeSort = new ArrayList(originalList);
+            List<T> beforeSort = new ArrayList<>(originalList);
 
             originalList.sort(comparator);
 
@@ -460,13 +462,13 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     }
 
     @Override
-    public boolean addListChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
-        return getListChangeSupport().addListChangeListener(l);
+    public boolean addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+        return getListChangeSupport().addChangeListener(l);
     }
 
     @Override
-    public boolean removeListChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
-        boolean result = getListChangeSupport().removeListChangeListener(l);
+    public boolean removeChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+        boolean result = getListChangeSupport().removeChangeListener(l);
 
         if (!getListChangeSupport().hasListeners()) {
             listChangeSupport = null;
@@ -476,13 +478,13 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     }
 
 //    @Override
-//    public boolean addListChangeListener(CollectionChangeListener<T, ? super VListChangeEvent<T>, ? super VList<T>, ? super VListChange<T>> l) {
-//        return getListChangeSupport().addListChangeListener(l);
+//    public boolean addChangeListener(CollectionChangeListener<T, ? super VListChangeEvent<T>, ? super VList<T>, ? super VListChange<T>> l) {
+//        return getListChangeSupport().addChangeListener(l);
 //    }
 //
 //    @Override
-//    public boolean removeListChangeListener(CollectionChangeListener<T, ? super VListChangeEvent<T>, ? super VList<T>, ? super VListChange<T>> l) {
-//        boolean result = getListChangeSupport().removeListChangeListener(l);
+//    public boolean removeChangeListener(CollectionChangeListener<T, ? super VListChangeEvent<T>, ? super VList<T>, ? super VListChange<T>> l) {
+//        boolean result = getListChangeSupport().removeChangeListener(l);
 //
 //        if (!getListChangeSupport().hasListeners()) {
 //            listChangeSupport = null;
@@ -490,7 +492,6 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 //
 //        return result;
 //    }
-
     private static class VListIterator<V> implements ListIterator<V> {
 
         private final VListImpl<V> parent;
@@ -536,6 +537,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void set(V e) {
 
             int setIndex = Math.max(0, previousIndex());

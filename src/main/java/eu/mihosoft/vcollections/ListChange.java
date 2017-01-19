@@ -9,8 +9,9 @@ import java.util.List;
 
 /**
  * 
- * @author Michael Hoffer <info@michaelhoffer.de>
  * @param <T> element type of the collection
+ * 
+ * @author Michael Hoffer (info@michaelhoffer.de)
  */
 interface ListChange<T> extends CollectionChange<T>{
 

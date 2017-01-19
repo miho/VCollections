@@ -79,6 +79,7 @@ public interface VListChange<T> extends ListChange<T>{
      * @param <V> element type
      * @return an empty list change object
      */
+    @SuppressWarnings("unchecked")
     static <V> VListChange<V> empty() {
         return (VListChange<V>) VListChangeImpl.EMPTY;
     }
@@ -97,14 +98,16 @@ public interface VListChange<T> extends ListChange<T>{
 /**
  * List change implementation.
  * 
- * @author Michael Hoffer <info@michaelhoffer.de>
  * @param <T> element type
+ * 
+ * @author Michael Hoffer (info@michaelhoffer.de)
  */
 class VListChangeImpl<T> implements VListChange<T> {
 
     private final int[] indices;
     private final List<T> elements;
 
+    @SuppressWarnings("unchecked")
     static final VListChange<?> EMPTY = new VListChangeImpl<>(new int[0], Collections.EMPTY_LIST);
 
     public VListChangeImpl(int[] indices, List<T> elements) {
