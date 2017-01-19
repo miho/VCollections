@@ -5,7 +5,6 @@
  */
 package javax.observer.collection;
 
-import eu.mihosoft.vcollections.*;
 import java.util.Collection;
 import javax.observer.Subscription;
 
