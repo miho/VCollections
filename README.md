@@ -22,9 +22,9 @@ public class Main {
         VList<Integer> vList = VList.newInstance(list);
 
         // to get notified, we add a change listener to the VList
-        vList.addListChangeListener((evt) -> {
+        Subscription subscription = vList.addChangeListener((evt) -> {
             // for now, we just print the changes
-            System.out.println(evt.toStringWithDetails());
+            System.out.println(EventUtil.toStringWithDetails(evt));
         });
 
         // add individual elements (generates 3 events)
@@ -46,6 +46,13 @@ public class Main {
         // remove collection of elements (generates only one event)
         System.out.println(">> remove one collection of elements");
         vList.removeAll(Arrays.asList(4,5,6));
+        
+        // unsubscribe the listener from vList
+        subscription.unsubscribe();
+        
+        //add elements without generating events
+        System.out.println(">> add one collection of elements without notification");
+        vList.addAll(Arrays.asList(4, 5, 6));
     }
 }
 ```
