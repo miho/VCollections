@@ -47,7 +47,7 @@ public class Main {
         System.out.println(">> remove one collection of elements");
         vList.removeAll(Arrays.asList(4,5,6));
         
-        // unsubscribe l from vList
+        // unsubscribe the listener from vList
         subscription.unsubscribe();
         
         //add elements without generating events
