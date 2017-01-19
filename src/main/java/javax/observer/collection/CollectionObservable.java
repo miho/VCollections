@@ -3,9 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.mihosoft.vcollections;
+package javax.observer.collection;
 
+import eu.mihosoft.vcollections.*;
 import java.util.Collection;
+import javax.observer.Subscription;
 
 /**
  * 
@@ -25,7 +27,7 @@ public interface CollectionObservable<T, OC extends Collection<T>, CC extends Co
      * 
      * @return the listener that has been added to this observable
      */
-    boolean addChangeListener(CollectionChangeListener<T, ? super OC, ? super CC> l);
+    Subscription addChangeListener(CollectionChangeListener<T, ? super OC, ? super CC> l);
 
     /**
      * Removes the specified listener from this list.

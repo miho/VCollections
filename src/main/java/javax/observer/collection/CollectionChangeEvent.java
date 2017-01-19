@@ -3,14 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.mihosoft.vcollections.playground;
-
+package javax.observer.collection;
 
 import java.util.Collection;
 
 /**
- *
- * @author Michael Hoffer <info@michaelhoffer.de>
+ * 
+ * @param <T> element type of the collection
+ * @param <OC> observed collection type
+ * @param <CC> collection change type
+ * 
+ * @author Michael Hoffer (info@michaelhoffer.de)
  */
 public interface CollectionChangeEvent<T, OC extends Collection<T>, CC extends CollectionChange<T>> {
         /**

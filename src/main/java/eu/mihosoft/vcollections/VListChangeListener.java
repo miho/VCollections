@@ -34,6 +34,9 @@
  */
 package eu.mihosoft.vcollections;
 
+import javax.observer.collection.CollectionChangeEvent;
+import javax.observer.collection.CollectionChangeListener;
+
 /**
  * List change listener. This listener is called whenever a list change occures.
  *

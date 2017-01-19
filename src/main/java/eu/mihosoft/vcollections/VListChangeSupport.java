@@ -37,6 +37,9 @@ package eu.mihosoft.vcollections;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.observer.Subscription;
+import javax.observer.collection.CollectionChangeEvent;
+import javax.observer.collection.CollectionChangeListener;
 
 /**
  * List change support for managing and notifying listeners.
@@ -49,8 +52,10 @@ public final class VListChangeSupport<T> implements VListObservable<T> {
     private final List<CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>>> listeners = new ArrayList<>();
 
     @Override
-    public boolean addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
-        return listeners.add(l);
+    public Subscription addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+        listeners.add(l);
+        
+        return () -> listeners.remove(l);
     }
 
     @Override

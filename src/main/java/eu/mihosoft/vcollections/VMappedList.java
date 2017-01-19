@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.observer.Subscription;
+import javax.observer.collection.CollectionChangeListener;
 
 /**
  * Creates a mapped list that keeps up to date with the original list.
@@ -214,13 +216,12 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
         return fromOrigToThis.apply(originalList.remove(index));
     }
 
-
     @Override
     @SuppressWarnings("unchecked")
-    public boolean addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
-        if (listenerMap.containsKey(l)) {
-            return false;
-        }
+    public Subscription addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+//        if (listenerMap.containsKey(l)) {
+//            return false;
+//        }
 
         VListChangeListener<V> mappedListener = (evt) -> {
 
@@ -241,13 +242,17 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
 
         listenerMap.put(l, mappedListener);
         originalList.addChangeListener(mappedListener);
-        return true;
+        return () -> {
+            listenerMap.remove(l);
+            originalList.removeChangeListener(mappedListener);
+        };
     }
 
     @Override
     public boolean removeChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
         if (listenerMap.containsKey(l)) {
-            return originalList.removeChangeListener(listenerMap.get(l));
+            VListChangeListener<V> mappedListener = listenerMap.remove(l);
+            return originalList.removeChangeListener(mappedListener);
         } else {
             return false;
         }

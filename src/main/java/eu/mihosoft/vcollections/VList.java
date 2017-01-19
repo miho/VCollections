@@ -48,6 +48,9 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.observer.Subscription;
+import javax.observer.collection.CollectionChangeEvent;
+import javax.observer.collection.CollectionChangeListener;
 
 /**
  * An observable list.
@@ -462,7 +465,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     }
 
     @Override
-    public boolean addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+    public Subscription addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
         return getListChangeSupport().addChangeListener(l);
     }
 

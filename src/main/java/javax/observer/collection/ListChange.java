@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package eu.mihosoft.vcollections;
+package javax.observer.collection;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import java.util.List;
  * 
  * @author Michael Hoffer (info@michaelhoffer.de)
  */
-interface ListChange<T> extends CollectionChange<T>{
+public interface ListChange<T> extends CollectionChange<T>{
 
     /**
      * @return the indices of the changed elements

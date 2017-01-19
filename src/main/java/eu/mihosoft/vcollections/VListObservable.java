@@ -34,6 +34,8 @@
  */
 package eu.mihosoft.vcollections;
 
+import javax.observer.collection.CollectionObservable;
+
 /**
  * List observable.
  *

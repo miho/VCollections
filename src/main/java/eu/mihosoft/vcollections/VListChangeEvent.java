@@ -35,6 +35,7 @@
 package eu.mihosoft.vcollections;
 
 import java.util.List;
+import javax.observer.collection.CollectionChangeEvent;
 
 /**
  * List change event. An event contains information about all changes made by
@@ -272,7 +273,7 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
                 sb.append(", ");
             }
             sb.append(this.added().elements().get(i));
-        }
+        } 
         sb.append("]\n");
         
         return sb.toString();

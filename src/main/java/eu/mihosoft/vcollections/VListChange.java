@@ -37,6 +37,7 @@ package eu.mihosoft.vcollections;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import javax.observer.collection.ListChange;
 
 /**
  * Represents a list change. Every listz change consists of an element list
