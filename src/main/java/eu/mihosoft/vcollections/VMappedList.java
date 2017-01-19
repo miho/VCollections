@@ -214,23 +214,7 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
         return fromOrigToThis.apply(originalList.remove(index));
     }
 
-//    @Override
-//    public CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> addListChangeListener(CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> l) {
-//
-//       
-//
-//        return l;
-//    }
-//
-//    @Override
-//    public boolean removeListChangeListener(CollectionChangeListener<T, VListChangeEvent<T>, VList<T>, VListChange<T>> l) {
-//        if (listenerMap.containsKey(l)) {
-//            return originalList.removeListChangeListener(listenerMap.get(l));
-//        } else {
-//            return false;
-//        }
-//    }
-    
+
     @Override
     @SuppressWarnings("unchecked")
     public boolean addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
@@ -262,6 +246,10 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
 
     @Override
     public boolean removeChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
-        throw new UnsupportedOperationException("Not supported yet."); // NB TODO
+        if (listenerMap.containsKey(l)) {
+            return originalList.removeChangeListener(listenerMap.get(l));
+        } else {
+            return false;
+        }
     }
 }
