@@ -28,6 +28,12 @@ task wrapper(type: Wrapper) {
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+}
+
 // JDK 8 is way too strict about Javadoc style
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:none', '-quiet')
@@ -58,9 +64,9 @@ license {
 }
 
 test {
-	//we want display the following test events
+    //we want display the following test events
     testLogging {
-//        events "PASSED", "STARTED", "FAILED", "SKIPPED"
+        //        events "PASSED", "STARTED", "FAILED", "SKIPPED"
         showStandardStreams = true
     }
 }

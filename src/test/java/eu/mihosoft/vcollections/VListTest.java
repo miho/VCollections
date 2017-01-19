@@ -55,7 +55,7 @@ public class VListTest {
         List<Integer> aList = new ArrayList<>();
         addRandomInts(10, aList);
 
-        VList vList = VList.newInstance(aList);
+        VList<Integer> vList = VList.newInstance(aList);
 
         // wrapped list must equal to plain list
         Assert.assertEquals(aList, vList);
@@ -99,7 +99,7 @@ public class VListTest {
 
         // record all 'add' events
         List<VListChange<Integer>> changes = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             if (evt.wasAdded()) {
                 changes.add(evt.added());
             }
@@ -136,7 +136,7 @@ public class VListTest {
 
         // record all 'add' events
         List<VListChange<Integer>> changes = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             if (evt.wasAdded()) {
                 changes.add(evt.added());
             }
@@ -160,7 +160,7 @@ public class VListTest {
 
         // record all 'add' events
         List<VListChange<Integer>> changes = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             if (evt.wasAdded()) {
                 changes.add(evt.added());
             }
@@ -214,7 +214,7 @@ public class VListTest {
 
         // record all 'add' events
         List<VListChange<Integer>> changes = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             if (evt.wasRemoved()) {
                 changes.add(evt.removed());
             }
@@ -254,7 +254,7 @@ public class VListTest {
 
         // record all 'remove' events
         List<VListChange<Integer>> changes = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             if (evt.wasRemoved()) {
                 changes.add(evt.removed());
             }
@@ -285,7 +285,7 @@ public class VListTest {
 
         // record all 'remove' events
         List<VListChange<Integer>> changes = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             changes.add(evt.removed());
         });
 
@@ -317,7 +317,7 @@ public class VListTest {
 
         // record all 'add' events
         List<VListChange<Integer>> changes = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             if (evt.wasRemoved()) {
                 changes.add(evt.removed());
             }
@@ -333,7 +333,7 @@ public class VListTest {
 
         // copy elements to retain
         List<Integer> elementsToRetain
-                = new ArrayList(vList.subList(firstIndex, secondIndex));
+                = new ArrayList<>(vList.subList(firstIndex, secondIndex));
         vList.retainAll(elementsToRetain);
 
         // test whether list only contains retained elements
@@ -366,7 +366,7 @@ public class VListTest {
         // record all 'add' and remove events
         List<VListChange<Integer>> added = new ArrayList<>();
         List<VListChange<Integer>> removed = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             added.add(evt.added());
             removed.add(evt.removed());
         });
@@ -417,7 +417,7 @@ public class VListTest {
 
         // record all 'add' events
         List<VListChange<Integer>> changes = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             if (evt.wasAdded()) {
                 changes.add(evt.added());
             }
@@ -459,7 +459,7 @@ public class VListTest {
 
         // record all 'remove' events
         List<VListChange<Integer>> changes = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             if (evt.wasRemoved()) {
                 changes.add(evt.removed());
             }
@@ -502,7 +502,7 @@ public class VListTest {
         // record all 'add' and remove events
         List<VListChange<Integer>> added = new ArrayList<>();
         List<VListChange<Integer>> removed = new ArrayList<>();
-        vList.addListChangeListener(evt -> {
+        vList.addChangeListener(evt -> {
             added.add(evt.added());
             removed.add(evt.removed());
         });
