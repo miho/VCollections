@@ -46,7 +46,7 @@ import java.util.List;
  */
 public final class VListChangeSupport<T> implements VListObservable<T> {
 
-    private final List<CollectionChangeListener/*<T, ? super VList<T>, ? super VListChange<T>>*/> listeners = new ArrayList<>();
+    private final List<CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>>> listeners = new ArrayList<>();
 
     @Override
     public boolean addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
