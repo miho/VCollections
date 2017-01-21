@@ -3,7 +3,8 @@
 
 Lightweight observable collections (used by VMF and [VRL](http://vrl-studio.mihosoft.eu)).
 
-**UPDATE: we might switch to another event API. Expect changes...**
+**UPDATE 1: we might switch to another event API. Expect changes...**
+**UPDATE 2: we are almost done...**
 
 ## Features
 - Observable List
