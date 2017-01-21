@@ -34,14 +34,83 @@
  */
 package eu.mihosoft.vcollections;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.observer.Subscription;
+import javax.observer.collection.CollectionChangeListener;
 import javax.observer.collection.CollectionObservable;
 
 /**
  * List observable.
  *
  * @author Michael Hoffer <info@michaelhoffer.de>
- * @param <T>
+ * @param <T> element type
  */
 public interface VListObservable<T> extends CollectionObservable<T, VList<T>, VListChange<T>> {
+
+    static <V> VListObservable<V> of(VList<V>... lists) {
+        return new VListObservableImpl<>(Arrays.asList(lists));
+    }
+
+    static <V> VListObservable<V> of(Collection<VList<V>> lists) {
+        return new VListObservableImpl<>(lists);
+    }
+}
+
+class VListObservableImpl<T> implements VListObservable<T> {
+
+    private final Collection<VList<T>> lists;
+    private final Map<Object, Collection<Subscription>> subscriptions = new HashMap<>();
+
+    VListObservableImpl(Collection<VList<T>> lists) {
+        this.lists = lists;
+    }
+
+    @Override
+    public Subscription addChangeListener(
+            CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+
+        Collection<Subscription> subscriptionsOfL = subscriptions.get(l);
+
+        if (subscriptionsOfL == null) {
+            subscriptionsOfL = new ArrayList<>();
+            subscriptions.put(l, subscriptionsOfL);
+        }
+
+        for (VList<T> list : lists) {
+            Subscription s = list.addChangeListener(l);
+
+            subscriptionsOfL.add(s);
+        }
+
+        return () -> {
+            Collection<Subscription> subscriptionsOfLtmp
+                    = subscriptions.get(l);
+
+            if (subscriptionsOfLtmp != null) {
+                subscriptionsOfLtmp.forEach(s -> {
+                    s.unsubscribe();
+                });
+            }
+        };
+    }
+
+    @Override
+    public boolean removeChangeListener(
+            CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+        Collection<Subscription> subscriptionsOfL = subscriptions.get(l);
+
+        if (subscriptions.containsKey(l) && subscriptionsOfL != null) {
+            subscriptionsOfL.forEach(s -> {
+                s.unsubscribe();
+            });
+            subscriptions.remove(l);
+        }
+
+        return subscriptionsOfL != null;
+    }
 
 }
