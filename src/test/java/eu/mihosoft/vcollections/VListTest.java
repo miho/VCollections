@@ -75,6 +75,23 @@ public class VListTest {
     }
 
     @Test
+    public void vListNotEqualsTest() {
+        List<Integer> aList = new ArrayList<>();
+        addRandomInts(10, aList);
+
+        VList<Integer> vList1 = VList.newInstance(aList);
+
+        VList<Integer> vList2 = VList.newInstance(new ArrayList<>(vList1));
+
+        vList2.set(0,getRandom().nextInt());
+
+
+        // lists must not be equal to plain list
+        Assert.assertFalse(vList1.equals(vList2));
+
+    }
+
+    @Test
     public void changeOnAddNotificationTest() {
         for (int i = 0; i < 100; i++) {
             int size = Math.max(1, getRandom().nextInt(100));
