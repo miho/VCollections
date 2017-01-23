@@ -722,4 +722,13 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return originalList.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return originalList.hashCode();
+    }
 }
