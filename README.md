@@ -14,6 +14,8 @@ Lightweight observable collections (used by VMF and [VRL](http://vrl-studio.miho
 
 ## Code Sample
 
+### Observing Changes
+
 ```java
 public class Main {
     public static void main(String[] args) {
