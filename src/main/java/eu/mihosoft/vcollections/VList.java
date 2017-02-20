@@ -75,6 +75,8 @@ public interface VList<T> extends List<T>, VListObservable<T> {
 
 
     public boolean removeAll(int... indices);
+
+    void setAll(int index, Collection<T> elements);
 }
 
 /**
@@ -257,6 +259,32 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         return result;
 
+    }
+
+    @Override
+    public void setAll(int index, Collection<T> elements) {
+
+        if(elements.isEmpty()) return;
+
+        int toIndex = index+elements.size();
+
+        int[] indices = IntStream.range(index,toIndex).toArray();
+
+        Iterator<T> it = elements.iterator();
+
+        int i = 0;
+        while(it.hasNext()) {
+            originalList.set(indices[i],it.next());
+            i++;
+        }
+
+        List<T> oldElements = new ArrayList<>(originalList.subList(index, toIndex));
+
+        if (hasListeners()) {
+            _vmf_fireChangeEvent(VListChangeEvent.getSetEvent(
+                    this, indices, oldElements, new ArrayList<T>(elements)
+            ));
+        }
     }
 
     @Override
