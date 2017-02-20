@@ -55,8 +55,8 @@ import javax.observer.collection.CollectionChangeListener;
 /**
  * An observable list.
  *
- * @author Michael Hoffer <info@michaelhoffer.de>
  * @param <T> element type
+ * @author Michael Hoffer <info@michaelhoffer.de>
  */
 public interface VList<T> extends List<T>, VListObservable<T> {
 
@@ -64,7 +64,7 @@ public interface VList<T> extends List<T>, VListObservable<T> {
      * Creates a new wrapper around the specified list. Modifying the wrapper
      * will modify the wrapped list.
      *
-     * @param <T> element type
+     * @param <T>  element type
      * @param list list to wrap
      * @return new {@link VList} that wraps the specified list
      */
@@ -72,6 +72,9 @@ public interface VList<T> extends List<T>, VListObservable<T> {
 
         return VListImpl.newInstance(list);
     }
+
+
+    public boolean removeAll(int... indices);
 }
 
 /**
@@ -254,6 +257,34 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         return result;
 
+    }
+
+    @Override
+    public boolean removeAll(int... indices) {
+
+        if (indices.length == 0) return true;
+
+        List<T> removedElements = new ArrayList<>(indices.length);
+
+        int[] indicesSorted = indices.clone();
+
+        Arrays.sort(indicesSorted);
+
+        for (int i = indicesSorted.length - 1; i > -1; i--) {
+            T e = originalList.remove(indicesSorted[i]);
+            removedElements.add(e);
+        }
+
+        Collections.reverse(removedElements);
+
+        if (hasListeners()) {
+            _vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(
+                    this, indicesSorted,
+                    removedElements
+            ));
+        }
+
+        return removedElements.size() == indices.length;
     }
 
     @Override
@@ -480,7 +511,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
         return result;
     }
 
-//    @Override
+    //    @Override
 //    public boolean addChangeListener(CollectionChangeListener<T, ? super VListChangeEvent<T>, ? super VList<T>, ? super VListChange<T>> l) {
 //        return getListChangeSupport().addChangeListener(l);
 //    }
@@ -595,7 +626,9 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
         public int previousIndex() {
             return lastIndex = originalIterator.previousIndex();
         }
-    };
+    }
+
+    ;
 
     private static class VSubList<T> implements List<T> {
 

@@ -83,7 +83,7 @@ public class VListTest {
 
         VList<Integer> vList2 = VList.newInstance(new ArrayList<>(vList1));
 
-        vList2.set(0,getRandom().nextInt());
+        vList2.set(0, getRandom().nextInt());
 
 
         // lists must not be equal to plain list
@@ -205,8 +205,11 @@ public class VListTest {
             createRemoveElementFromSpecificLocationTest(size);
 
             int numberOfElementsToRemove
-                    = Math.max(1, getRandom().nextInt(100));
+                    = Math.max(1, getRandom().nextInt(size));
             createRemoveMultipleElementsFromListTest(
+                    size, numberOfElementsToRemove);
+
+            createRemoveMultipleElementsByIndexFromListTest(
                     size, numberOfElementsToRemove);
         }
     }
@@ -220,7 +223,7 @@ public class VListTest {
     }
 
     private void createRemoveMultipleElementsFromListTest(int size,
-            int numberOfElementsToRemove) {
+                                                          int numberOfElementsToRemove) {
 
         // creates a list with size random integers
         List<Integer> aList = new ArrayList<>();
@@ -246,6 +249,53 @@ public class VListTest {
 
         // remove the elements
         vList.removeAll(elementsToRemove);
+
+        // changes must contain elementsToRemove added elements in one change
+        // the elementsToAdd list object that equals
+        Assert.assertTrue("change list must contain one element",
+                changes.size() == 1);
+
+        // test whether the reported elements are equal to the removed elements
+        Assert.assertEquals(elementsToRemove, changes.get(0).elements());
+
+        // index array must match indices of added elements
+        int[] indices = IntStream.range(size,
+                size + numberOfElementsToRemove).toArray();
+        Assert.assertArrayEquals(indices, changes.get(0).indices());
+    }
+
+    private void createRemoveMultipleElementsByIndexFromListTest(
+            int size,
+            int numberOfElementsToRemove) {
+
+        // creates a list with size random integers
+        List<Integer> aList = new ArrayList<>();
+        addRandomInts(size, aList);
+
+        // wrap this list in an observable vlist
+        VList<Integer> vList = VList.newInstance(aList);
+
+        // record all 'add' events
+        List<VListChange<Integer>> changes = new ArrayList<>();
+        vList.addChangeListener(evt -> {
+            if (evt.wasRemoved()) {
+                changes.add(evt.removed());
+            }
+        });
+
+        //remove multiple elements
+        List<Integer> elementsToRemove = new ArrayList<>();
+        addRandomInts(numberOfElementsToRemove, elementsToRemove);
+
+        // add the elements that will later be removed to the original list
+        // pro prevent unwanted event generation
+        aList.addAll(elementsToRemove);
+
+        // remove the elements
+        vList.removeAll(IntStream.range(
+                aList.size()-elementsToRemove.size(),
+                aList.size()).toArray()
+        );
 
         // changes must contain elementsToRemove added elements in one change
         // the elementsToAdd list object that equals

@@ -217,6 +217,11 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
     }
 
     @Override
+    public boolean removeAll(int... indices) {
+        return originalList.removeAll(indices);
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public Subscription addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
 //        if (listenerMap.containsKey(l)) {
