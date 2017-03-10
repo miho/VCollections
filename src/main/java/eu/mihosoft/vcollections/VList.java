@@ -370,6 +370,12 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
     @Override
     public void clear() {
+
+        // don't do anything if this list is already empty
+        if(isEmpty()) {
+            return;
+        }
+
         List<T> elementsBefore = null;
         int[] indices = null;
 
