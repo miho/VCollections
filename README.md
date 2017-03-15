@@ -54,7 +54,7 @@ public class Main {
         // unsubscribe the listener from vList
         subscription.unsubscribe();
         
-        //add elements without generating events
+        // add elements without generating events
         System.out.println(">> add one collection of elements without notification");
         vList.addAll(Arrays.asList(4, 5, 6));
     }
