@@ -48,9 +48,9 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.observer.Subscription;
-import javax.observer.collection.CollectionChangeEvent;
-import javax.observer.collection.CollectionChangeListener;
+import vjavax.observer.Subscription;
+import vjavax.observer.collection.CollectionChangeEvent;
+import vjavax.observer.collection.CollectionChangeListener;
 
 /**
  * An observable list.
@@ -68,17 +68,35 @@ public interface VList<T> extends List<T>, VListObservable<T> {
      * @param list list to wrap
      * @return new {@link VList} that wraps the specified list
      */
-    public static <T> VList<T> newInstance(List<T> list) {
+    static <T> VList<T> newInstance(List<T> list) {
 
         return VListImpl.newInstance(list);
     }
 
 
+    /**
+     * Removes elements at the specified indices.
+     * @param indices
+     * @return {@code true} if this collection changed as a result of the call; {@code false} otherwise
+     */
     boolean removeAll(int... indices);
 
-    void setAll(int index, Collection<T> elements);
+    /**
+     * Sets specified elements. All elements from {@code index} to {@code index+elements.size()-1}
+     * are set, i.e., replaced.
+     * @param index start index
+     * @param elements elements to set
+     * @return the elements previously at the specified positions
+     */
+    Collection<T> setAll(int index, Collection<T> elements);
 
-    void addAll(int[] indices, Collection<? extends T> c);
+    /**
+     * Adds the specified elements at the given indices. It requires that {@code indices.length == c.size()}
+     * @param indices indices
+     * @param c collection containing the elements to add
+     * @return {@code true} if the collection changed as a result of the call; {@code false} otherwise
+     */
+    boolean addAll(int[] indices, Collection<? extends T> c);
 }
 
 /**
@@ -237,23 +255,38 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     }
 
     @Override
-    public void addAll(int[] indices, Collection<? extends T> c) {
+    public boolean addAll(int[] indices, Collection<? extends T> c) {
+
+        Objects.requireNonNull(indices, "Indices must not be null");
+        Objects.requireNonNull(indices, "collection must not be null");
+
+        if(indices.length!=c.size()) {
+            throw new RuntimeException("The number of indices must match the number of elements to add");
+        }
+
+        // only sort indices if we have listeners
+        int[] indicesSorted;
+        if(hasListeners()) {
+            indicesSorted = indices.clone();
+            Arrays.sort(indicesSorted);
+        } else {
+            indicesSorted = indices;
+        }
+
+        Iterator<? extends T> it = c.iterator();
+
+        boolean changed = indicesSorted.length>0;
+
+        for (int i = indicesSorted.length - 1; i > -1; i--) {
+            originalList.add(indicesSorted[i],it.next());
+        }
 
         if (hasListeners()) {
-
-            int[] indicesSorted = indices.clone();
-
-            Arrays.sort(indicesSorted);
-
-            Iterator<? extends T> it = c.iterator();
-
-            for (int i = indicesSorted.length - 1; i > -1; i--) {
-                originalList.add(indicesSorted[i],it.next());
-            }
-
             _vmf_fireChangeEvent(VListChangeEvent.
                     getAddedEvent(this, indices, new ArrayList<>(c)));
         }
+
+        return changed;
     }
 
     @Override
@@ -284,9 +317,9 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     }
 
     @Override
-    public void setAll(int index, Collection<T> elements) {
+    public Collection<T> setAll(int index, Collection<T> elements) {
 
-        if(elements.isEmpty()) return;
+        if(elements.isEmpty()) return Collections.emptyList();
 
         int toIndex = index+elements.size();
 
@@ -294,9 +327,11 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         Iterator<T> it = elements.iterator();
 
+        List<T> previousElements = new ArrayList<>(elements.size());
+
         int i = 0;
         while(it.hasNext()) {
-            originalList.set(indices[i],it.next());
+            previousElements.add(originalList.set(indices[i],it.next()));
             i++;
         }
 
@@ -307,6 +342,8 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
                     this, indices, oldElements, new ArrayList<T>(elements)
             ));
         }
+
+        return previousElements;
     }
 
     @Override
@@ -334,7 +371,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             ));
         }
 
-        return removedElements.size() == indices.length;
+        return !removedElements.isEmpty();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package javax.observer.collection;
+package vjavax.observer.collection;
 
 import java.util.Set;
 

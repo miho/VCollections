@@ -21,7 +21,7 @@ apply plugin: 'java'
 apply from: 'gradle/publishing.gradle'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.3'
+    gradleVersion = '4.0'
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 

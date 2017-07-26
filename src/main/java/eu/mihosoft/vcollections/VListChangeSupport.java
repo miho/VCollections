@@ -35,11 +35,10 @@
 package eu.mihosoft.vcollections;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import javax.observer.Subscription;
-import javax.observer.collection.CollectionChangeEvent;
-import javax.observer.collection.CollectionChangeListener;
+import vjavax.observer.Subscription;
+import vjavax.observer.collection.CollectionChangeEvent;
+import vjavax.observer.collection.CollectionChangeListener;
 
 /**
  * List change support for managing and notifying listeners.

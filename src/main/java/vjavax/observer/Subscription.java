@@ -1,4 +1,4 @@
-package javax.observer;
+package vjavax.observer;
 
 /**
  * TODO

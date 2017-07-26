@@ -39,9 +39,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import javax.observer.Subscription;
-import javax.observer.collection.CollectionChangeListener;
-import javax.observer.collection.CollectionObservable;
+import vjavax.observer.Subscription;
+import vjavax.observer.collection.CollectionChangeListener;
+import vjavax.observer.collection.CollectionObservable;
 
 /**
  * List observable.
@@ -51,6 +51,7 @@ import javax.observer.collection.CollectionObservable;
  */
 public interface VListObservable<T> extends CollectionObservable<T, VList<T>, VListChange<T>> {
 
+    @SafeVarargs
     static <V> VListObservable<V> of(VList<V>... lists) {
         return new VListObservableImpl<>(Arrays.asList(lists));
     }

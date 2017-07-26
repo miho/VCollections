@@ -5,7 +5,7 @@
  */
 package eu.mihosoft.vcollections;
 
-import javax.observer.collection.CollectionChangeEvent;
+import vjavax.observer.collection.CollectionChangeEvent;
 
 /**
  * Utility class for events. 

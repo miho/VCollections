@@ -34,16 +34,11 @@
  */
 package eu.mihosoft.vcollections;
 
-import java.util.AbstractList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.observer.Subscription;
-import javax.observer.collection.CollectionChangeListener;
+import vjavax.observer.Subscription;
+import vjavax.observer.collection.CollectionChangeListener;
 
 /**
  * Creates a mapped list that keeps up to date with the original list.
@@ -222,13 +217,19 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
     }
 
     @Override
-    public void setAll(int index, Collection<T> elements) {
-        originalList.setAll(index, elements.stream().map(fromThisToOrig).collect(Collectors.toList()));
+    public Collection<T> setAll(int index, Collection<T> elements) {
+        Collection<V> prevElements = originalList.setAll(index, elements.stream().
+                map(fromThisToOrig).collect(Collectors.toList()));
+
+        // return mapped elements
+        return prevElements.stream().
+                map(fromOrigToThis).collect(Collectors.toList());
     }
 
     @Override
-    public void addAll(int[] indices, Collection<? extends T> c) {
-        originalList.addAll(indices, c.stream().map(fromThisToOrig).collect(Collectors.toList()));
+    public boolean addAll(int[] indices, Collection<? extends T> c) {
+        return originalList.addAll(indices, c.stream().
+                map(fromThisToOrig).collect(Collectors.toList()));
     }
 
     @Override

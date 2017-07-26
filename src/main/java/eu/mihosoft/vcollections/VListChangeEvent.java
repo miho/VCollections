@@ -35,7 +35,7 @@
 package eu.mihosoft.vcollections;
 
 import java.util.List;
-import javax.observer.collection.CollectionChangeEvent;
+import vjavax.observer.collection.CollectionChangeEvent;
 
 /**
  * List change event. An event contains information about all changes made by
