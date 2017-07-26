@@ -10,7 +10,7 @@ Lightweight observable collections (used by VMF and [VRL](http://vrl-studio.miho
 ## Features
 - Observable List
 - Mapped List (keeps two lists with different element types in sync)
-- coming soon: ObservableMap and ObservableSet
+- coming sooner or later: ObservableMap and ObservableSet
 
 ## Code Sample
 
@@ -54,7 +54,7 @@ public class Main {
         // unsubscribe the listener from vList
         subscription.unsubscribe();
         
-        //add elements without generating events
+        // add elements without generating events
         System.out.println(">> add one collection of elements without notification");
         vList.addAll(Arrays.asList(4, 5, 6));
     }
