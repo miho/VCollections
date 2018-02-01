@@ -58,7 +58,8 @@ license {
         groovy = 'SLASHSTAR_STYLE'
         fxml   = 'XML_STYLE'
     }
-    ext.year   = '2017'
+    ext.yearFirst   = '2017'
+    ext.yearNow     = '2018'
     ext.author = 'Michael Hoffer <info@michaelhoffer.de>'
     exclude '**/*.svg'
 }

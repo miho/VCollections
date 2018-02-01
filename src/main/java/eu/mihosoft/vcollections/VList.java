@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Michael Hoffer <info@michaelhoffer.de>. All rights reserved.
+ * Copyright 2017-2018 Michael Hoffer <info@michaelhoffer.de>. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
@@ -73,6 +73,12 @@ public interface VList<T> extends List<T>, VListObservable<T> {
         return VListImpl.newInstance(list);
     }
 
+    /**
+     * Returns an unmodifiable view of this list (see {@link java.util.Collections#unmodifiableList(java.util.List)} ).
+     * 
+     * @return an unmodifiable view of this list
+     */
+    VList<T> asUnmodifiable();
 
     /**
      * Removes elements at the specified indices.
@@ -109,6 +115,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     private final List<T> originalList;
 
     private VListChangeSupport<T> listChangeSupport;
+    private VListImpl<T> unmodifiableInstance;
 
     private VListChangeSupport<T> getListChangeSupport() {
 
@@ -602,6 +609,23 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
         }
 
         return result;
+    }
+
+    @Override
+    public VList<T> asUnmodifiable() {
+        if(unmodifiableInstance==null) {
+            unmodifiableInstance = new VListImpl<>(Collections.unmodifiableList(originalList));
+            
+            syncLists(this, unmodifiableInstance);
+        }
+        
+        return unmodifiableInstance;
+    }
+
+    private void syncLists(VListImpl<T> aThis, VListImpl<T> unmodifiableInstance) {
+
+        aThis.addChangeListener((VListChangeListener<T>) unmodifiableInstance::_vmf_fireChangeEvent);
+        
     }
 
     //    @Override

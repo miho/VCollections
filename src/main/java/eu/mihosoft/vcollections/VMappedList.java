@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Michael Hoffer <info@michaelhoffer.de>. All rights reserved.
+ * Copyright 2017-2018 Michael Hoffer <info@michaelhoffer.de>. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are
  * permitted provided that the following conditions are met:
@@ -73,53 +73,6 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
      * original element type
      * @return a new mapped list
      */
-    public static <T, V> List<T> newInstance(List<V> srcList,
-            Function<V, T> fromOrigToThis,
-            Function<T, V> fromThisToOrig) {
-        return new VMappedList<>(srcList, fromOrigToThis, fromThisToOrig);
-    }
-
-    /**
-     * Creates a new unmodifiable mapped list that maps each element in the
-     * original list to the specified target type.
-     *
-     * That is, each change made in the source list is reflected in the target
-     * list. Modifications to the target list, however are impossible.
-     *
-     * @param <T> element type of the target list
-     * @param <V> element type of the source list
-     *
-     * @param srcList list to map
-     * @param fromOrigToThis mapping from the original element type to the
-     * target element type
-     * @return a new unmodifiable mapped list
-     */
-    public static <T, V> List<T> newUnmodifiableInstance(List<V> srcList,
-            Function<V, T> fromOrigToThis) {
-        return new VMappedList<>(Collections.unmodifiableList(srcList),
-                fromOrigToThis, (e) -> {
-                    throw new UnsupportedOperationException(
-                            "Cannot modify an unmodifiable list.");
-                });
-    }
-
-    /**
-     * Creates a new mapped list that maps each element in the original list to
-     * the specified target type.
-     *
-     * Each change made in the source list is reflected in the target list and
-     * vice versa.
-     *
-     * @param <T> element type of the target list
-     * @param <V> element type of the source list
-     *
-     * @param srcList list to map
-     * @param fromOrigToThis mapping from the original element type to the
-     * target element type
-     * @param fromThisToOrig mapping from the target element type to the
-     * original element type
-     * @return a new mapped list
-     */
     public static <T, V> VList<T> newInstance(VList<V> srcList,
             Function<V, T> fromOrigToThis,
             Function<T, V> fromThisToOrig) {
@@ -143,7 +96,7 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
      */
     public static <T, V> VList<T> newUnmodifiableInstance(VList<V> srcList,
             Function<V, T> fromOrigToThis) {
-        return new VMappedList<>(Collections.unmodifiableList(srcList),
+        return new VMappedList<>(srcList.asUnmodifiable(),
                 fromOrigToThis, (e) -> {
                     throw new UnsupportedOperationException(
                             "Cannot modify an unmodifiable list.");
@@ -272,5 +225,11 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
         } else {
             return false;
         }
+    }
+    
+    
+    @Override
+    public VList<T> asUnmodifiable() {
+        throw new UnsupportedOperationException("Unsupported operation: use 'newUnModifiableInstance(...)' instead.");
     }
 }
