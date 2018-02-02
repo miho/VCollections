@@ -61,6 +61,37 @@ public class Main {
 }
 ```
 
+### Observing Unmodifiable Lists
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        // creates an ordinary list
+        List<Integer> list = new ArrayList<>();
+
+        // to make the list observable, we wrap it in a VList
+        VList<Integer> vList = VList.newInstance(list);
+        
+        // How to make the list unmodifiable and still listen to changes?
+        // THIS DOES NOT WORK: VList.newInstance(Collections.unmodifiableList(list));
+        VList<Integer> vListUnmodifiable = vList.asUnmodifiable();
+
+        // to get notified, we add a change listener to the unmodifiable VList
+        Subscription subscription = vListUnmodifiable.addChangeListener((evt) -> {
+            // for now, we just print the changes
+            System.out.println(EventUtil.toStringWithDetails(evt));
+        });
+
+        // add element and generate event
+        vList.add(1);
+
+        // modifying the unmodifiable list results in RuntimeException...
+        vListUnmodifiable.add(37);
+        
+    }
+}
+```
+
 ## How to Build VCollections
 
 ### Requirements
