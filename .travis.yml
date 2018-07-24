@@ -1,12 +1,15 @@
 
 sudo: false
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
+# addons:
+#  apt:
+#    packages:
+#      - oracle-java8-installer
 language: java
 install: true
-jdk: oraclejdk8
+jdk:
+- oraclejdk8
+- oraclejdk9
+- oraclejdk10
 
 before_script:
   - bash ./gradlew --version
