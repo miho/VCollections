@@ -4,12 +4,33 @@ sudo: false
 #  apt:
 #    packages:
 #      - oracle-java8-installer
-language: java
-install: true
-jdk:
-- oraclejdk8
-- oraclejdk9
-- oraclejdk10
+
+matrix:
+    include:
+    - os: linux
+      language: java
+      jdk:  oraclejdk8
+      install: true
+    - os: linux
+      language: java
+      jdk:  oraclejdk9
+      install: true
+    - os: linux
+      language: java
+      jdk:  openjdk11
+    - os: linux
+      language: java
+      jdk:  openjdk-ea
+    - os: linux
+      language: java
+      jdk:  openjdk12  
+    allow_failures:
+       - os: linux
+         language: java
+         jdk:  openjdk-ea
+       - os: linux
+         language: java
+         jdk:  openjdk12  
 
 before_script:
   - bash ./gradlew --version
