@@ -1,5 +1,6 @@
 # VCollections
-[![Build Status](https://travis-ci.org/miho/VCollections.svg?branch=master)](https://travis-ci.org/miho/VCollections)[ ![Download](https://api.bintray.com/packages/miho/VCollections/VCollections/images/download.svg) ](https://bintray.com/miho/VCollections/VCollections/_latestVersion)
+[![Build Status](https://travis-ci.org/miho/VCollections.svg?branch=master)](https://travis-ci.org/miho/VCollections)[ ![Download](https://api.bintray.com/packages/miho/VCollections/VCollections/images/download.svg) ](https://bintray.com/miho/VCollections/VCollections/_latestVersion) [![Javadocs](https://www.javadoc.io/badge/eu.mihosoft.vcollections/vcollections.svg?color=blue)](https://www.javadoc.io/doc/eu.mihosoft.vcollections/vcollections)
+
 
 Lightweight observable collections (used by VMF and [VRL](http://vrl-studio.mihosoft.eu)).
 
