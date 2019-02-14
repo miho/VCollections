@@ -64,7 +64,10 @@ public final class VListChangeSupport<T> implements VListObservable<T> {
 
     @SuppressWarnings("unchecked")
     public void fireEvent(CollectionChangeEvent<T, ? super VList<T>, ? super VListChange<T>> evt) {
-        for (CollectionChangeListener/*<T, ? super VList<T>, ? super VListChange<T>>*/ listener : listeners) {
+
+        List<CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>>> listenersToNotify = new ArrayList<>(listeners);
+
+        for (CollectionChangeListener/*<T, ? super VList<T>, ? super VListChange<T>>*/ listener : listenersToNotify) {
             listener.onChange(evt);
         }
     }
