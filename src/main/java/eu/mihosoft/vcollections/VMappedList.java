@@ -125,6 +125,16 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
     }
 
     @Override
+    public void setEventInfo(String evtInfo) {
+        originalList.setEventInfo(evtInfo);
+    }
+
+    @Override
+    public String getEventInfo() {
+        return originalList.getEventInfo();
+    }
+
+    @Override
     public T get(int index) {
         return fromOrigToThis.apply(originalList.get(index));
     }

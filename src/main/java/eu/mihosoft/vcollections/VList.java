@@ -103,6 +103,18 @@ public interface VList<T> extends List<T>, VListObservable<T> {
      * @return {@code true} if the collection changed as a result of the call; {@code false} otherwise
      */
     boolean addAll(int[] indices, Collection<? extends T> c);
+
+    /**
+     * Sets the event info to be used for event generation.
+     * @param evtInfo event info to set
+     */
+    void setEventInfo(String evtInfo);
+
+    /**
+     * Returns the event info used for event generation.
+     * @return event info used for event generation
+     */
+    String getEventInfo();
 }
 
 /**
@@ -117,6 +129,8 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     private VListChangeSupport<T> listChangeSupport;
     private VListImpl<T> unmodifiableInstance;
 
+    private String evtInfo = "";
+
     private VListChangeSupport<T> getListChangeSupport() {
 
         if (listChangeSupport == null) {
@@ -124,6 +138,20 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
         }
 
         return listChangeSupport;
+    }
+
+    @Override
+    public String getEventInfo() {
+        return this.evtInfo;
+    }
+
+    @Override
+    public void setEventInfo(String evtInfo) {
+        if(evtInfo==null) {
+            this.evtInfo = "";
+        } else {
+            this.evtInfo = evtInfo;
+        }
     }
 
     private boolean hasListeners() {
@@ -189,7 +217,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             _vmf_fireChangeEvent(VListChangeEvent.
                     getAddedEvent(this,
                             new int[]{index},
-                            Arrays.asList(e)));
+                            Arrays.asList(e),getEventInfo()));
         }
 
         return result;
@@ -210,7 +238,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             _vmf_fireChangeEvent(VListChangeEvent.
                     getRemovedEvent(this,
                             new int[]{index},
-                            (List<T>) Arrays.asList(o)));
+                            (List<T>) Arrays.asList(o),getEventInfo()));
         }
 
         return result;
@@ -236,7 +264,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             }
 
             _vmf_fireChangeEvent(VListChangeEvent.
-                    getAddedEvent(this, indices, new ArrayList<>(c)));
+                    getAddedEvent(this, indices, new ArrayList<>(c),getEventInfo()));
         }
 
         return result;
@@ -255,7 +283,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             }
 
             _vmf_fireChangeEvent(VListChangeEvent.
-                    getAddedEvent(this, indices, new ArrayList<>(c)));
+                    getAddedEvent(this, indices, new ArrayList<>(c),getEventInfo()));
         }
 
         return result;
@@ -290,7 +318,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         if (hasListeners()) {
             _vmf_fireChangeEvent(VListChangeEvent.
-                    getAddedEvent(this, indices, new ArrayList<>(c)));
+                    getAddedEvent(this, indices, new ArrayList<>(c),getEventInfo()));
         }
 
         return changed;
@@ -314,7 +342,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
         if (hasListeners()) {
 
             _vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(this, indices,
-                    new ArrayList(c)
+                    new ArrayList(c),getEventInfo()
             ));
 
         }
@@ -346,7 +374,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         if (hasListeners()) {
             _vmf_fireChangeEvent(VListChangeEvent.getSetEvent(
-                    this, indices, oldElements, new ArrayList<T>(elements)
+                    this, indices, oldElements, new ArrayList<T>(elements),getEventInfo()
             ));
         }
 
@@ -374,7 +402,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
         if (hasListeners()) {
             _vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(
                     this, indicesSorted,
-                    removedElements
+                    removedElements,getEventInfo()
             ));
         }
 
@@ -404,7 +432,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         if (hasListeners()) {
             _vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(this, indices,
-                    elementsToRemove
+                    elementsToRemove,getEventInfo()
             ));
         }
 
@@ -434,7 +462,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             _vmf_fireChangeEvent(VListChangeEvent.
                     getRemovedEvent(this,
                             indices,
-                            new ArrayList<T>(elementsBefore)));
+                            new ArrayList<T>(elementsBefore),getEventInfo()));
         }
     }
 
@@ -451,7 +479,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             _vmf_fireChangeEvent(VListChangeEvent.
                     getSetEvent(this,
                             new int[]{index},
-                            Arrays.asList(result), Arrays.asList(element)));
+                            Arrays.asList(result), Arrays.asList(element),getEventInfo()));
         }
 
         return result;
@@ -465,7 +493,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             _vmf_fireChangeEvent(VListChangeEvent.
                     getAddedEvent(this,
                             new int[]{index},
-                            Arrays.asList(element)));
+                            Arrays.asList(element),getEventInfo()));
         }
     }
 
@@ -484,7 +512,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             _vmf_fireChangeEvent(VListChangeEvent.
                     getRemovedEvent(this,
                             new int[]{index},
-                            Arrays.asList(element)));
+                            Arrays.asList(element),getEventInfo()));
         }
 
         return result;
@@ -536,7 +564,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             _vmf_fireChangeEvent(VListChangeEvent.
                     getRemovedEvent(this,
                             indices,
-                            removed));
+                            removed,getEventInfo()));
         }
 
         return result;
@@ -558,7 +586,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
                     getSetEvent(this,
                             indices,
                             new ArrayList<T>(elementsBefore),
-                            new ArrayList<T>(originalList)));
+                            new ArrayList<T>(originalList),getEventInfo()));
         }
     }
 
@@ -588,7 +616,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
                 _vmf_fireChangeEvent(VListChangeEvent.getSetEvent(
                         this, indices,
                         changesRemoved,
-                        changesAdded));
+                        changesAdded,getEventInfo()));
             }
         } else {
             originalList.sort(comparator);
@@ -681,7 +709,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
                         VListChangeEvent.getRemovedEvent(
                                 parent,
                                 new int[]{removeIndex},
-                                Arrays.asList(lastElement)));
+                                Arrays.asList(lastElement), parent.getEventInfo()));
             }
 
             originalIterator.remove();
@@ -710,7 +738,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
                         VListChangeEvent.getSetEvent(
                                 parent,
                                 new int[]{setIndex},
-                                elementBefore, Arrays.asList(e)));
+                                elementBefore, Arrays.asList(e),parent.getEventInfo()));
             }
         }
 

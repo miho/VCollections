@@ -126,6 +126,26 @@ public interface VListChangeEvent<T> extends CollectionChangeEvent<T, VList<T>, 
 
     /**
      * Returns an event that contains the changes produced by the specified
+     * 'add(..)' operation.
+     *
+     * @param <V> element type
+     * @param source source list
+     * @param indices indices of the elements that were added
+     * @param elements elements that were added
+     * @param evtInfo event info (to be used by subscribers)
+     * @return an event that contains the changes produced by the specified
+     * 'add(..)' operation
+     */
+    static <V> VListChangeEvent<V> getAddedEvent(VList<V> source,
+            int[] indices, List<V> elements, String evtInfo) {
+        return new VListChangeEventImpl<>(
+                source,
+                VListChange.newInstance(indices, elements),
+                VListChange.empty(), evtInfo);
+    }
+
+    /**
+     * Returns an event that contains the changes produced by the specified
      * 'remove(..)' operation.
      *
      * @param <V> element type
@@ -141,6 +161,26 @@ public interface VListChangeEvent<T> extends CollectionChangeEvent<T, VList<T>, 
                 source,
                 VListChange.empty(),
                 VListChange.newInstance(indices, elements));
+    }
+
+    /**
+     * Returns an event that contains the changes produced by the specified
+     * 'remove(..)' operation.
+     *
+     * @param <V> element type
+     * @param source source list
+     * @param indices indices of the elements that were remove
+     * @param elements elements that were removes
+     * @param evtInfo event info (to be used by subscribers)
+     * @return an event that contains the changes produced by the specified
+     * 'remove(..)' operation
+     */
+    static <V> VListChangeEvent<V> getRemovedEvent(VList<V> source,
+            int[] indices, List<V> elements, String evtInfo) {
+        return new VListChangeEventImpl<>(
+                source,
+                VListChange.empty(),
+                VListChange.newInstance(indices, elements), evtInfo);
     }
 
     /**
@@ -162,7 +202,28 @@ public interface VListChangeEvent<T> extends CollectionChangeEvent<T, VList<T>, 
                 VListChange.newInstance(indices, elementsAdded),
                 VListChange.newInstance(indices, elementsRemoved));
     }
-    
+
+    /**
+     * Returns an event that contains the changes produced by the specified
+     * 'set(..)' operation.
+     *
+     * @param <V> element type
+     * @param source source list
+     * @param indices indices of the elements that were set/replaced
+     * @param elementsRemoved elements that were removed
+     * @param elementsAdded elements that were added
+     * @param evtInfo event info (to be used by subscribers)
+     * @return an event that contains the changes produced by the specified
+     * 'set(..)' operation
+     */
+    static <V> VListChangeEvent<V> getSetEvent(VList<V> source,
+            int[] indices, List<V> elementsRemoved, List<V> elementsAdded, String evtInfo) {
+        return new VListChangeEventImpl<>(
+                source,
+                VListChange.newInstance(indices, elementsAdded),
+                VListChange.newInstance(indices, elementsRemoved), evtInfo);
+    }
+
     /**
      * Returns a detailed string representation of this object, including
      * added and removedelements.
@@ -186,11 +247,22 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
     private final VListChange<T> added;
     private final VListChange<T> removed;
 
+    private final String evtInfo;
+
     public VListChangeEventImpl(VList<T> source, VListChange<T> added,
             VListChange<T> removed) {
         this.source = source;
         this.added = added;
         this.removed = removed;
+        this.evtInfo = "";
+    }
+
+    public VListChangeEventImpl(VList<T> source, VListChange<T> added,
+            VListChange<T> removed, String evtInfo) {
+        this.source = source;
+        this.added = added;
+        this.removed = removed;
+        this.evtInfo = evtInfo;
     }
 
     @Override

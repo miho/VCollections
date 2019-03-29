@@ -105,5 +105,10 @@ public interface CollectionChangeEvent<T, OC extends Collection<T>, CC extends C
      */
     OC source();
 
-    
+    /**
+     * Additional event info. This can be used to categorize events asnd provide domain specific
+     * information that can be evaluated by all event listeners/subscribers.
+     * @return
+     */
+    default String eventInfo() { return ""; }
 }
