@@ -51,6 +51,23 @@ import java.util.stream.IntStream;
 public class VListTest {
 
     @Test
+    public void eventInfoTest() {
+        VList<Integer> vList = VList.newInstance(new ArrayList<Integer>());
+
+        String customEventInfo = "my event info";
+
+        vList.setEventInfo(customEventInfo);
+
+        vList.add(123);
+
+        vList.addChangeListener(evt -> {
+            if (evt.wasAdded()) {
+                Assert.assertEquals(evt.eventInfo(), customEventInfo);
+            }
+        });
+    }
+
+    @Test
     public void wrapListEqualsTest() {
         List<Integer> aList = new ArrayList<>();
         addRandomInts(10, aList);

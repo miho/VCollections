@@ -266,6 +266,11 @@ class VListChangeEventImpl<T> implements VListChangeEvent<T> {
     }
 
     @Override
+    public String eventInfo() {
+        return this.evtInfo;
+    }
+
+    @Override
     public boolean wasAdded() {
         return added.hasChanges();
     }
