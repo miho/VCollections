@@ -1,5 +1,12 @@
 # VCollections
-[![Build Status](https://travis-ci.org/miho/VCollections.svg?branch=master)](https://travis-ci.org/miho/VCollections)[ ![Download](https://api.bintray.com/packages/miho/VCollections/VCollections/images/download.svg) ](https://bintray.com/miho/VCollections/VCollections/_latestVersion) [![Javadocs](https://www.javadoc.io/badge/eu.mihosoft.vcollections/vcollections.svg?color=blue)](https://www.javadoc.io/doc/eu.mihosoft.vcollections/vcollections)
+[![Build Status](https://travis-ci.org/miho/VCollections.svg?branch=master)](https://travis-ci.org/miho/VCollections) [![Javadocs](https://www.javadoc.io/badge/eu.mihosoft.vcollections/vcollections.svg?color=blue)](https://www.javadoc.io/doc/eu.mihosoft.vcollections/vcollections)
+<a href="https://foojay.io/today/works-with-openjdk">
+   <img align="right" 
+        src="https://github.com/foojayio/badges/raw/main/works_with_openjdk/Works-with-OpenJDK.png"   
+        width="100">
+</a>
+
+<br>
 
 
 Lightweight observable collections (used by VMF and [VRL](http://vrl-studio.mihosoft.eu)).
