@@ -32,42 +32,90 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Michael Hoffer <info@michaelhoffer.de>.
  */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.mihosoft.vcollections;
 
-import vjavax.observer.collection.CollectionChangeEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Map.Entry;
+import vjavax.observer.collection.CollectionChange;
 
 /**
- * Utility class for events. 
- * 
- * @author Michael Hoffer (info@michaelhoffer.de)
+ * Represents a map change.
+ *
+ * @author Michael Hoffer <info@michaelhoffer.de>
  */
-public final class EventUtil {
+public interface VMapChange<K, V> extends CollectionChange<Entry<K, V>> {
 
-    private EventUtil() {
-        throw new AssertionError("Please don't instantiate me!");
+    /**
+     * @return changed entries
+     */
+    Map<K, V> entries();
+
+    /**
+     * @return keys of changed entries
+     */
+    default Collection<K> keys() {
+        return entries().keySet();
+    }
+
+    @Override
+    default List<Entry<K, V>> elements() {
+        return new ArrayList<>(entries().entrySet());
     }
 
     /**
-     * Returns a detailed string representation of the specified event or the
-     * result of the {@code toString()} method if details are not available for
-     * the specified event.
+     * Creates a new map change.
      *
-     * @param evt event
-     * @return detailed string representation of the specified event
+     * @param <K> key type
+     * @param <V> value type
+     * @param entries changed entries
+     * @return new map change object
      */
-    public static String toStringWithDetails(CollectionChangeEvent evt) {
-        if (evt instanceof VListChangeEvent) {
-            return ((VListChangeEvent) evt).toStringWithDetails();
-        } else if (evt instanceof VMapChangeEvent) {
-            return ((VMapChangeEvent) evt).toStringWithDetails();
-        } else {
-            return evt.toString();
-        }
+    static <K, V> VMapChange<K, V> newInstance(Map<K, V> entries) {
+        Objects.requireNonNull(entries);
+        return new VMapChangeImpl<>(entries);
     }
 
+    /**
+     * Creates an empty map change object.
+     *
+     * @param <K> key type
+     * @param <V> value type
+     * @return an empty map change object
+     */
+    @SuppressWarnings("unchecked")
+    static <K, V> VMapChange<K, V> empty() {
+        return (VMapChange<K, V>) VMapChangeImpl.EMPTY;
+    }
+
+    /**
+     * Indicates whether this object contains map changes.
+     *
+     * @return {@code true} if this object contains changes; {@code false}
+     * otherwise
+     */
+    default boolean hasChanges() {
+        return !entries().isEmpty();
+    }
+}
+
+class VMapChangeImpl<K, V> implements VMapChange<K, V> {
+
+    private final Map<K, V> entries;
+
+    @SuppressWarnings("unchecked")
+    static final VMapChange<?, ?> EMPTY = new VMapChangeImpl<>(Collections.emptyMap());
+
+    VMapChangeImpl(Map<K, V> entries) {
+        this.entries = entries;
+    }
+
+    @Override
+    public Map<K, V> entries() {
+        return entries;
+    }
 }

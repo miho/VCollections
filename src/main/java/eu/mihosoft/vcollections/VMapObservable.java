@@ -32,42 +32,71 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Michael Hoffer <info@michaelhoffer.de>.
  */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.mihosoft.vcollections;
 
-import vjavax.observer.collection.CollectionChangeEvent;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
+import vjavax.observer.Subscription;
+import eu.mihosoft.vcollections.VMapChangeListener;
 
 /**
- * Utility class for events. 
- * 
- * @author Michael Hoffer (info@michaelhoffer.de)
+ * Map observable.
+ *
+ * @author Michael Hoffer <info@michaelhoffer.de>
  */
-public final class EventUtil {
+public interface VMapObservable<K, V> {
 
-    private EventUtil() {
-        throw new AssertionError("Please don't instantiate me!");
+    @SafeVarargs
+    static <K, V> VMapObservable<K, V> of(VMap<K, V>... maps) {
+        return new VMapObservableImpl<>(Arrays.asList(maps));
     }
 
-    /**
-     * Returns a detailed string representation of the specified event or the
-     * result of the {@code toString()} method if details are not available for
-     * the specified event.
-     *
-     * @param evt event
-     * @return detailed string representation of the specified event
-     */
-    public static String toStringWithDetails(CollectionChangeEvent evt) {
-        if (evt instanceof VListChangeEvent) {
-            return ((VListChangeEvent) evt).toStringWithDetails();
-        } else if (evt instanceof VMapChangeEvent) {
-            return ((VMapChangeEvent) evt).toStringWithDetails();
-        } else {
-            return evt.toString();
+    static <K, V> VMapObservable<K, V> of(Collection<VMap<K, V>> maps) {
+        return new VMapObservableImpl<>(maps);
+    }
+
+    Subscription addChangeListener(VMapChangeListener<K, V> l);
+
+    boolean removeChangeListener(VMapChangeListener<K, V> l);
+}
+
+class VMapObservableImpl<K, V> implements VMapObservable<K, V> {
+
+    private final Collection<VMap<K, V>> maps;
+    private final Map<Object, Collection<Subscription>> subscriptions = new HashMap<>();
+
+    VMapObservableImpl(Collection<VMap<K, V>> maps) {
+        this.maps = maps;
+    }
+
+    @Override
+    public Subscription addChangeListener(VMapChangeListener<K, V> l) {
+        Collection<Subscription> subsOfL = subscriptions.get(l);
+        if (subsOfL == null) {
+            subsOfL = new java.util.ArrayList<>();
+            subscriptions.put(l, subsOfL);
         }
+        for (VMap<K, V> m : maps) {
+            Subscription s = m.addChangeListener(l);
+            subsOfL.add(s);
+        }
+        return () -> {
+            Collection<Subscription> subs = subscriptions.get(l);
+            if (subs != null) {
+                subs.forEach(Subscription::unsubscribe);
+            }
+        };
     }
 
+    @Override
+    public boolean removeChangeListener(VMapChangeListener<K, V> l) {
+        Collection<Subscription> subs = subscriptions.get(l);
+        if (subscriptions.containsKey(l) && subs != null) {
+            subs.forEach(Subscription::unsubscribe);
+            subscriptions.remove(l);
+        }
+        return subs != null;
+    }
 }
