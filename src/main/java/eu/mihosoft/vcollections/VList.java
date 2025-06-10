@@ -293,7 +293,7 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     public boolean addAll(int[] indices, Collection<? extends T> c) {
 
         Objects.requireNonNull(indices, "Indices must not be null");
-        Objects.requireNonNull(indices, "collection must not be null");
+        Objects.requireNonNull(c, "collection must not be null");
 
         if(indices.length!=c.size()) {
             throw new RuntimeException("The number of indices must match the number of elements to add");
@@ -370,11 +370,11 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
             i++;
         }
 
-        List<T> oldElements = new ArrayList<>(originalList.subList(index, toIndex));
+        List<T> oldElements = new ArrayList<>(previousElements);
 
         if (hasListeners()) {
             _vmf_fireChangeEvent(VListChangeEvent.getSetEvent(
-                    this, indices, oldElements, new ArrayList<T>(elements),getEventInfo()
+                    this, indices, oldElements, new ArrayList<T>(elements), getEventInfo()
             ));
         }
 
