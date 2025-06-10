@@ -32,42 +32,44 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied, of Michael Hoffer <info@michaelhoffer.de>.
  */
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package eu.mihosoft.vcollections;
 
-import vjavax.observer.collection.CollectionChangeEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import vjavax.observer.Subscription;
+
+import eu.mihosoft.vcollections.VMapChangeListener;
+import eu.mihosoft.vcollections.VMapChangeEvent;
 
 /**
- * Utility class for events. 
- * 
- * @author Michael Hoffer (info@michaelhoffer.de)
+ * Map change support for managing and notifying listeners.
+ *
+ * @author Michael Hoffer <info@michaelhoffer.de>
  */
-public final class EventUtil {
+public final class VMapChangeSupport<K, V> implements VMapObservable<K, V> {
 
-    private EventUtil() {
-        throw new AssertionError("Please don't instantiate me!");
+    private final List<VMapChangeListener<K, V>> listeners = new ArrayList<>();
+
+    @Override
+    public Subscription addChangeListener(VMapChangeListener<K, V> l) {
+        listeners.add(l);
+        return () -> listeners.remove(l);
     }
 
-    /**
-     * Returns a detailed string representation of the specified event or the
-     * result of the {@code toString()} method if details are not available for
-     * the specified event.
-     *
-     * @param evt event
-     * @return detailed string representation of the specified event
-     */
-    public static String toStringWithDetails(CollectionChangeEvent evt) {
-        if (evt instanceof VListChangeEvent) {
-            return ((VListChangeEvent) evt).toStringWithDetails();
-        } else if (evt instanceof VMapChangeEvent) {
-            return ((VMapChangeEvent) evt).toStringWithDetails();
-        } else {
-            return evt.toString();
+    @Override
+    public boolean removeChangeListener(VMapChangeListener<K, V> l) {
+        return listeners.remove(l);
+    }
+
+    public void fireEvent(VMapChangeEvent<K, V> evt) {
+        List<VMapChangeListener<K, V>> toNotify = new ArrayList<>(listeners);
+        for (VMapChangeListener<K, V> l : toNotify) {
+            l.onChange(evt);
         }
     }
 
+    public boolean hasListeners() {
+        return !listeners.isEmpty();
+    }
 }
