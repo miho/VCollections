@@ -206,13 +206,14 @@ public final class VMappedList<T, V> extends AbstractList<T> implements VList<T>
 
             VListChangeEvent e = new VListChangeEventImpl<>(VMappedList.this,
                     VListChange.newInstance(evt.added().indices(),
-                            evt.added().elements().stream().
-                            map(fromOrigToThis).
-                            collect(Collectors.toList())),
+                            evt.added().elements().stream()
+                            .map(fromOrigToThis)
+                            .collect(Collectors.toList())),
                     VListChange.newInstance(evt.removed().indices(),
-                            evt.removed().elements().stream().
-                            map(fromOrigToThis).
-                            collect(Collectors.toList()))
+                            evt.removed().elements().stream()
+                            .map(fromOrigToThis)
+                            .collect(Collectors.toList())),
+                    evt.eventInfo()
             );
 
             l.onChange(e);
