@@ -34,48 +34,69 @@
  */
 package eu.mihosoft.vcollections;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
 import vjavax.observer.Subscription;
-import vjavax.observer.collection.CollectionChangeEvent;
-import vjavax.observer.collection.CollectionChangeListener;
+import eu.mihosoft.vcollections.VMapChangeListener;
 
 /**
- * List change support for managing and notifying listeners.
+ * Map observable.
  *
- * @param <T> element type
  * @author Michael Hoffer <info@michaelhoffer.de>
  */
-public final class VListChangeSupport<T> implements VListObservable<T> {
+public interface VMapObservable<K, V> {
 
-    private final List<CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>>> listeners = new ArrayList<>();
-
-    @Override
-    public Subscription addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
-        listeners.add(l);
-        
-        return () -> listeners.remove(l);
+    @SafeVarargs
+    static <K, V> VMapObservable<K, V> of(VMap<K, V>... maps) {
+        return new VMapObservableImpl<>(Arrays.asList(maps));
     }
 
-    @Override
-    public boolean removeChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
-        return listeners.remove(l);
+    static <K, V> VMapObservable<K, V> of(Collection<VMap<K, V>> maps) {
+        return new VMapObservableImpl<>(maps);
     }
 
-    @SuppressWarnings("unchecked")
-    public void fireEvent(CollectionChangeEvent<T, ? super VList<T>, ? super VListChange<T>> evt) {
+    Subscription addChangeListener(VMapChangeListener<K, V> l);
 
-        List<CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>>> listenersToNotify = new ArrayList<>(listeners);
-
-        for (CollectionChangeListener/*<T, ? super VList<T>, ? super VListChange<T>>*/ listener : listenersToNotify) {
-            listener.onChange(evt);
-        }
-    }
-
-
-    public boolean hasListeners() {
-        return !listeners.isEmpty();
-    }
-
+    boolean removeChangeListener(VMapChangeListener<K, V> l);
 }
 
+class VMapObservableImpl<K, V> implements VMapObservable<K, V> {
+
+    private final Collection<VMap<K, V>> maps;
+    private final Map<Object, Collection<Subscription>> subscriptions = new HashMap<>();
+
+    VMapObservableImpl(Collection<VMap<K, V>> maps) {
+        this.maps = maps;
+    }
+
+    @Override
+    public Subscription addChangeListener(VMapChangeListener<K, V> l) {
+        Collection<Subscription> subsOfL = subscriptions.get(l);
+        if (subsOfL == null) {
+            subsOfL = new java.util.ArrayList<>();
+            subscriptions.put(l, subsOfL);
+        }
+        for (VMap<K, V> m : maps) {
+            Subscription s = m.addChangeListener(l);
+            subsOfL.add(s);
+        }
+        return () -> {
+            Collection<Subscription> subs = subscriptions.get(l);
+            if (subs != null) {
+                subs.forEach(Subscription::unsubscribe);
+            }
+        };
+    }
+
+    @Override
+    public boolean removeChangeListener(VMapChangeListener<K, V> l) {
+        Collection<Subscription> subs = subscriptions.get(l);
+        if (subscriptions.containsKey(l) && subs != null) {
+            subs.forEach(Subscription::unsubscribe);
+            subscriptions.remove(l);
+        }
+        return subs != null;
+    }
+}

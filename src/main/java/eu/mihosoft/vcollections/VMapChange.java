@@ -35,47 +35,87 @@
 package eu.mihosoft.vcollections;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import vjavax.observer.Subscription;
-import vjavax.observer.collection.CollectionChangeEvent;
-import vjavax.observer.collection.CollectionChangeListener;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Map.Entry;
+import vjavax.observer.collection.CollectionChange;
 
 /**
- * List change support for managing and notifying listeners.
+ * Represents a map change.
  *
- * @param <T> element type
  * @author Michael Hoffer <info@michaelhoffer.de>
  */
-public final class VListChangeSupport<T> implements VListObservable<T> {
+public interface VMapChange<K, V> extends CollectionChange<Entry<K, V>> {
 
-    private final List<CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>>> listeners = new ArrayList<>();
+    /**
+     * @return changed entries
+     */
+    Map<K, V> entries();
 
-    @Override
-    public Subscription addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
-        listeners.add(l);
-        
-        return () -> listeners.remove(l);
+    /**
+     * @return keys of changed entries
+     */
+    default Collection<K> keys() {
+        return entries().keySet();
     }
 
     @Override
-    public boolean removeChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
-        return listeners.remove(l);
+    default List<Entry<K, V>> elements() {
+        return new ArrayList<>(entries().entrySet());
     }
 
+    /**
+     * Creates a new map change.
+     *
+     * @param <K> key type
+     * @param <V> value type
+     * @param entries changed entries
+     * @return new map change object
+     */
+    static <K, V> VMapChange<K, V> newInstance(Map<K, V> entries) {
+        Objects.requireNonNull(entries);
+        return new VMapChangeImpl<>(entries);
+    }
+
+    /**
+     * Creates an empty map change object.
+     *
+     * @param <K> key type
+     * @param <V> value type
+     * @return an empty map change object
+     */
     @SuppressWarnings("unchecked")
-    public void fireEvent(CollectionChangeEvent<T, ? super VList<T>, ? super VListChange<T>> evt) {
-
-        List<CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>>> listenersToNotify = new ArrayList<>(listeners);
-
-        for (CollectionChangeListener/*<T, ? super VList<T>, ? super VListChange<T>>*/ listener : listenersToNotify) {
-            listener.onChange(evt);
-        }
+    static <K, V> VMapChange<K, V> empty() {
+        return (VMapChange<K, V>) VMapChangeImpl.EMPTY;
     }
 
-
-    public boolean hasListeners() {
-        return !listeners.isEmpty();
+    /**
+     * Indicates whether this object contains map changes.
+     *
+     * @return {@code true} if this object contains changes; {@code false}
+     * otherwise
+     */
+    default boolean hasChanges() {
+        return !entries().isEmpty();
     }
-
 }
 
+class VMapChangeImpl<K, V> implements VMapChange<K, V> {
+
+    private final Map<K, V> entries;
+
+    @SuppressWarnings("unchecked")
+    static final VMapChange<?, ?> EMPTY = new VMapChangeImpl<>(Collections.emptyMap());
+
+    VMapChangeImpl(Map<K, V> entries) {
+        this.entries = entries;
+    }
+
+    @Override
+    public Map<K, V> entries() {
+        return entries;
+    }
+}

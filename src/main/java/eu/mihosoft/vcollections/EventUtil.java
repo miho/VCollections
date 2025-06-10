@@ -63,6 +63,8 @@ public final class EventUtil {
     public static String toStringWithDetails(CollectionChangeEvent evt) {
         if (evt instanceof VListChangeEvent) {
             return ((VListChangeEvent) evt).toStringWithDetails();
+        } else if (evt instanceof VMapChangeEvent) {
+            return ((VMapChangeEvent) evt).toStringWithDetails();
         } else {
             return evt.toString();
         }

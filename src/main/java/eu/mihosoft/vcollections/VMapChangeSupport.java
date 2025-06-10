@@ -36,46 +36,40 @@ package eu.mihosoft.vcollections;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import vjavax.observer.Subscription;
-import vjavax.observer.collection.CollectionChangeEvent;
-import vjavax.observer.collection.CollectionChangeListener;
+
+import eu.mihosoft.vcollections.VMapChangeListener;
+import eu.mihosoft.vcollections.VMapChangeEvent;
 
 /**
- * List change support for managing and notifying listeners.
+ * Map change support for managing and notifying listeners.
  *
- * @param <T> element type
  * @author Michael Hoffer <info@michaelhoffer.de>
  */
-public final class VListChangeSupport<T> implements VListObservable<T> {
+public final class VMapChangeSupport<K, V> implements VMapObservable<K, V> {
 
-    private final List<CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>>> listeners = new ArrayList<>();
+    private final List<VMapChangeListener<K, V>> listeners = new ArrayList<>();
 
     @Override
-    public Subscription addChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+    public Subscription addChangeListener(VMapChangeListener<K, V> l) {
         listeners.add(l);
-        
         return () -> listeners.remove(l);
     }
 
     @Override
-    public boolean removeChangeListener(CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>> l) {
+    public boolean removeChangeListener(VMapChangeListener<K, V> l) {
         return listeners.remove(l);
     }
 
-    @SuppressWarnings("unchecked")
-    public void fireEvent(CollectionChangeEvent<T, ? super VList<T>, ? super VListChange<T>> evt) {
-
-        List<CollectionChangeListener<T, ? super VList<T>, ? super VListChange<T>>> listenersToNotify = new ArrayList<>(listeners);
-
-        for (CollectionChangeListener/*<T, ? super VList<T>, ? super VListChange<T>>*/ listener : listenersToNotify) {
-            listener.onChange(evt);
+    public void fireEvent(VMapChangeEvent<K, V> evt) {
+        List<VMapChangeListener<K, V>> toNotify = new ArrayList<>(listeners);
+        for (VMapChangeListener<K, V> l : toNotify) {
+            l.onChange(evt);
         }
     }
-
 
     public boolean hasListeners() {
         return !listeners.isEmpty();
     }
-
 }
-

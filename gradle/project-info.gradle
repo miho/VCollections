@@ -1,25 +1,23 @@
 // -----------------------------------------------------------------------------
 // publishing information
 // -----------------------------------------------------------------------------
-ext.publishing.artifactId =  project.name.toLowerCase()
-ext.publishing.groupId    =  'eu.mihosoft.vcollections'
-ext.publishing.versionId  =  '0.3.3'
+ext.publishingInfo.artifactId            =  project.name.toLowerCase()
+ext.publishingInfo.groupId               =  'eu.mihosoft.vcollections'
+ext.publishingInfo.versionId             =  ext.commonProps.get("publication.version")
 
-ext.publishing.developerName         = 'Michael Hoffer'
-ext.publishing.developerAlias        = 'miho'
-ext.publishing.developerEmail        = 'info@michaelhoffer.de'
-ext.publishing.inceptionYear         = '2017'
+ext.publishingInfo.developerName         = 'Michael Hoffer'
+ext.publishingInfo.developerAlias        = 'miho'
+ext.publishingInfo.developerEmail        = 'info@michaelhoffer.de'
+ext.publishingInfo.inceptionYear         = '2017'
 
-ext.publishing.bintray.repo          = 'VCollections'
-ext.publishing.bintray.userOrg       = 'miho'
-ext.publishing.bintray.name          = project.name
+ext.publishingInfo.desc                  = 'Lightweight observable collections (used by VMF and VRL)'
+ext.publishingInfo.license               = 'Apache-2.0'
+ext.publishingInfo.licenseUrl            = 'https://github.com/miho/VCollections/blob/master/LICENSE.txt'
+ext.publishingInfo.labels                = ['collections', 'observable', 'vmf', 'modeling', 'data model', 'vrl', 'modeling framework']
+ext.publishingInfo.websiteUrl            = 'https://github.com/miho/VCollections'
+ext.publishingInfo.issueTrackerUrl       = 'https://github.com/miho/VCollections/issues'
+ext.publishingInfo.vcsUrl                = 'https://github.com/miho/VCollections.git'
 
-ext.publishing.desc                  = 'Lightweight observable collections (used by VMF and VRL)'
-ext.publishing.license               = 'BSD 2-Clause'
-ext.publishing.licenseUrl            = 'https://github.com/miho/VCollections/blob/master/LICENSE.txt'
-ext.publishing.labels                = ['collections', 'observable', 'vmf', 'modeling', 'data model', 'vrl', 'modeling framework']
-ext.publishing.websiteUrl            = 'https://github.com/miho/VCollections'
-ext.publishing.issueTrackerUrl       = 'https://github.com/miho/VCollections/issues'
-ext.publishing.vcsUrl                = 'https://github.com/miho/VCollections.git'
+ext.publishingInfo.gitHubMavenRepo       = "https://maven.pkg.github.com/miho/VCollections"
 
-ext.publishing.pomName               =  ext.publishing.artifactId
+ext.publishingInfo.pomName               =  ext.publishingInfo.artifactId
