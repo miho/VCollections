@@ -74,7 +74,7 @@ public final class VListChangeSupport<T> implements VListObservable<T> {
 
 
     public boolean hasListeners() {
-        return true;
+        return !listeners.isEmpty();
     }
 
 }

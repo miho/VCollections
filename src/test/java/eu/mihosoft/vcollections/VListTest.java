@@ -38,12 +38,15 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import eu.mihosoft.vcollections.VListChangeEvent;
 
 /**
  * Created by miho on 16.01.2017.
@@ -489,6 +492,33 @@ public class VListTest {
             createIteratorRemoveTest(size);
             createIteratorSetTest(size);
         }
+    }
+
+    @Test
+    public void setAllEventContainsPreviousElements() {
+        VList<Integer> vList = VList.newInstance(new ArrayList<>(Arrays.asList(0,1,2,3,4)));
+
+        List<VListChangeEvent<Integer>> events = new ArrayList<>();
+        vList.addChangeListener(evt -> events.add((VListChangeEvent<Integer>) evt));
+
+        vList.setAll(1, Arrays.asList(10, 11));
+
+        Assert.assertEquals(1, events.size());
+        VListChangeEvent<Integer> evt = events.get(0);
+        Assert.assertEquals(Arrays.asList(1, 2), evt.removed().elements());
+        Assert.assertEquals(Arrays.asList(10, 11), evt.added().elements());
+    }
+
+    @Test
+    public void removeChangeListenerResetsSupport() throws Exception {
+        VList<Integer> vList = VList.newInstance(new ArrayList<Integer>());
+        VListChangeListener<Integer> l = evt -> {};
+        vList.addChangeListener(l);
+        vList.removeChangeListener(l);
+
+        java.lang.reflect.Field f = vList.getClass().getDeclaredField("listChangeSupport");
+        f.setAccessible(true);
+        Assert.assertNull(f.get(vList));
     }
 
     private void createIteratorAddTest(int size) {
