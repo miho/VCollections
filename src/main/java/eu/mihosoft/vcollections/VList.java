@@ -690,6 +690,8 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
             int addIndex = nextIndex();
             originalIterator.add(e);
+            lastIndex = -1;
+            lastElement = null;
 
             if (parent.hasListeners()) {
                 parent._vmf_fireChangeEvent(
@@ -702,43 +704,26 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         @Override
         public void remove() {
-
-            if (parent.hasListeners()) {
-                int removeIndex = previousIndex();
-                parent._vmf_fireChangeEvent(
-                        VListChangeEvent.getRemovedEvent(
-                                parent,
-                                new int[]{removeIndex},
-                                Arrays.asList(lastElement), parent.getEventInfo()));
-            }
-
+            int removeIndex = lastIndex;
+            V removed = lastElement;
+            // Mutate first: an invalid operation must not publish a phantom event.
             originalIterator.remove();
+            lastIndex = -1;
+            lastElement = null;
+            if (parent.hasListeners()) {
+                parent._vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(
+                        parent, new int[]{removeIndex}, Arrays.asList(removed), parent.getEventInfo()));
+            }
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public void set(V e) {
-
-            int setIndex = Math.max(0, previousIndex());
-
-            List<V> elementBefore = null;
-
-            if (parent.hasListeners()) {
-                if (parent.isEmpty()) {
-                    elementBefore = Collections.EMPTY_LIST;
-                } else {
-                    elementBefore = Arrays.asList(lastElement);
-                }
-            }
-
+            V previous = lastElement;
             originalIterator.set(e);
-
+            lastElement = e;
             if (parent.hasListeners()) {
-                parent._vmf_fireChangeEvent(
-                        VListChangeEvent.getSetEvent(
-                                parent,
-                                new int[]{setIndex},
-                                elementBefore, Arrays.asList(e),parent.getEventInfo()));
+                parent._vmf_fireChangeEvent(VListChangeEvent.getSetEvent(
+                        parent, new int[]{lastIndex}, Arrays.asList(previous), Arrays.asList(e), parent.getEventInfo()));
             }
         }
 
@@ -749,7 +734,10 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         @Override
         public V next() {
-            return lastElement = originalIterator.next();
+            int index = originalIterator.nextIndex();
+            V result = originalIterator.next();
+            lastIndex = index;
+            return lastElement = result;
         }
 
         @Override
@@ -759,17 +747,20 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
         @Override
         public V previous() {
-            return lastElement = originalIterator.previous();
+            int index = originalIterator.previousIndex();
+            V result = originalIterator.previous();
+            lastIndex = index;
+            return lastElement = result;
         }
 
         @Override
         public int nextIndex() {
-            return lastIndex = originalIterator.nextIndex();
+            return originalIterator.nextIndex();
         }
 
         @Override
         public int previousIndex() {
-            return lastIndex = originalIterator.previousIndex();
+            return originalIterator.previousIndex();
         }
     }
 
