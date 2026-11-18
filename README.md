@@ -1,5 +1,5 @@
 # VCollections
-[![Build Status](https://travis-ci.org/miho/VCollections.svg?branch=master)](https://travis-ci.org/miho/VCollections) [![Javadocs](https://www.javadoc.io/badge/eu.mihosoft.vcollections/vcollections.svg?color=blue)](https://www.javadoc.io/doc/eu.mihosoft.vcollections/vcollections)
+[![CI](https://github.com/miho/VCollections/actions/workflows/ci.yml/badge.svg)](https://github.com/miho/VCollections/actions/workflows/ci.yml) [![Javadocs](https://www.javadoc.io/badge/eu.mihosoft.vcollections/vcollections.svg?color=blue)](https://www.javadoc.io/doc/eu.mihosoft.vcollections/vcollections)
 <a href="https://foojay.io/today/works-with-openjdk">
    <img align="right" 
         src="https://github.com/foojayio/badges/raw/main/works_with_openjdk/Works-with-OpenJDK.png"   
@@ -15,6 +15,40 @@ Lightweight observable collections (used by VMF and [VRL](http://vrl-studio.miho
 - Observable List
 - Mapped List (keeps two lists with different element types in sync)
 - coming sooner or later: ObservableMap and ObservableSet
+
+## Using VCollections
+
+VCollections is available on Maven Central:
+
+```groovy
+dependencies {
+    implementation 'eu.mihosoft.vcollections:vcollections:0.3.4'
+}
+```
+
+```xml
+<dependency>
+    <groupId>eu.mihosoft.vcollections</groupId>
+    <artifactId>vcollections</artifactId>
+    <version>0.3.4</version>
+</dependency>
+```
+
+### Snapshots
+
+Between releases, `main` is published as `-SNAPSHOT` (e.g. `0.3.5-SNAPSHOT`) to the Maven Central snapshot repository:
+
+```groovy
+repositories {
+    mavenCentral()
+    maven {
+        url = uri('https://central.sonatype.com/repository/maven-snapshots/')
+        mavenContent { snapshotsOnly() }
+    }
+}
+```
+
+Snapshots change without notice and are deleted after 90 days; Gradle caches them for 24 hours (`--refresh-dependencies` fetches the latest). How snapshots and releases are published: [docs/RELEASING.md](docs/RELEASING.md).
 
 ## Code Sample
 
