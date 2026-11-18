@@ -603,7 +603,8 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
             // generate change set
             for (int i = 0; i < size(); i++) {
-                if (!Objects.equals(beforeSort.get(i), originalList.get(i))) {
+                // Equal elements can still be distinct objects that changed positions.
+                if (beforeSort.get(i) != originalList.get(i)) {
                     indicesList.add(i);
                     changesRemoved.add(beforeSort.get(i));
                     changesAdded.add(originalList.get(i));

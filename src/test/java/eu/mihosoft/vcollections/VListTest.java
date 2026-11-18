@@ -40,6 +40,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
@@ -507,6 +509,43 @@ public class VListTest {
         VListChangeEvent<Integer> evt = events.get(0);
         Assert.assertEquals(Arrays.asList(1, 2), evt.removed().elements());
         Assert.assertEquals(Arrays.asList(10, 11), evt.added().elements());
+    }
+
+    @Test
+    public void sortRecordsDistinctEqualElementsAtTheirNewIndices() {
+        String first = new String("same value");
+        String last = new String("same value");
+        String middle = "unchanged";
+        Assert.assertEquals(first, last);
+        Assert.assertNotSame(first, last);
+
+        List<String> original = Arrays.asList(first, middle, last);
+        VList<String> source = VList.newInstance(new ArrayList<>(original));
+        List<VListChangeEvent<String>> events = new ArrayList<>();
+        source.addChangeListener(event -> events.add((VListChangeEvent<String>) event));
+        IdentityHashMap<String, Integer> rank = new IdentityHashMap<>();
+        rank.put(last, 0);
+        rank.put(middle, 1);
+        rank.put(first, 2);
+        Comparator<String> byRank = Comparator.comparingInt(rank::get);
+
+        source.sort(byRank);
+
+        Assert.assertSame(last, source.get(0));
+        Assert.assertSame(middle, source.get(1));
+        Assert.assertSame(first, source.get(2));
+        Assert.assertEquals(1, events.size());
+        VListChangeEvent<String> event = events.get(0);
+        Assert.assertTrue(event.wasSet());
+        Assert.assertArrayEquals(new int[]{0, 2}, event.removed().indices());
+        Assert.assertArrayEquals(new int[]{0, 2}, event.added().indices());
+        Assert.assertSame(first, event.removed().elements().get(0));
+        Assert.assertSame(last, event.removed().elements().get(1));
+        Assert.assertSame(last, event.added().elements().get(0));
+        Assert.assertSame(first, event.added().elements().get(1));
+
+        source.sort(byRank);
+        Assert.assertEquals(1, events.size());
     }
 
     @Test
