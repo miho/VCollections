@@ -22,7 +22,7 @@ VCollections is available on Maven Central:
 
 ```groovy
 dependencies {
-    implementation 'eu.mihosoft.vcollections:vcollections:0.3.4'
+    implementation 'eu.mihosoft.vcollections:vcollections:0.3.5'
 }
 ```
 
@@ -30,13 +30,13 @@ dependencies {
 <dependency>
     <groupId>eu.mihosoft.vcollections</groupId>
     <artifactId>vcollections</artifactId>
-    <version>0.3.4</version>
+    <version>0.3.5</version>
 </dependency>
 ```
 
 ### Snapshots
 
-Between releases, `main` is published as `-SNAPSHOT` (e.g. `0.3.5-SNAPSHOT`) to the Maven Central snapshot repository:
+Between releases, `main` is published as `-SNAPSHOT` (e.g. `0.3.6-SNAPSHOT`) to the Maven Central snapshot repository:
 
 ```groovy
 repositories {
