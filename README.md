@@ -22,7 +22,7 @@ VCollections is available on Maven Central:
 
 ```groovy
 dependencies {
-    implementation 'eu.mihosoft.vcollections:vcollections:0.3.5'
+    implementation 'eu.mihosoft.vcollections:vcollections:0.3.6'
 }
 ```
 
@@ -30,7 +30,7 @@ dependencies {
 <dependency>
     <groupId>eu.mihosoft.vcollections</groupId>
     <artifactId>vcollections</artifactId>
-    <version>0.3.5</version>
+    <version>0.3.6</version>
 </dependency>
 ```
 
