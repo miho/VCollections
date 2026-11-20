@@ -72,7 +72,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'eu.mihosoft.vcollections:vcollections:0.3.6-SNAPSHOT'
+    implementation 'eu.mihosoft.vcollections:vcollections:0.3.7-SNAPSHOT'
 }
 ```
 

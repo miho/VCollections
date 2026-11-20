@@ -36,7 +36,7 @@ dependencies {
 
 ### Snapshots
 
-Between releases, `main` is published as `-SNAPSHOT` (e.g. `0.3.6-SNAPSHOT`) to the Maven Central snapshot repository:
+Between releases, `main` is published as `-SNAPSHOT` (e.g. `0.3.7-SNAPSHOT`) to the Maven Central snapshot repository:
 
 ```groovy
 repositories {
