@@ -37,9 +37,13 @@ package eu.mihosoft.vcollections;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 import vjavax.observer.collection.CollectionChange;
 
@@ -111,7 +115,21 @@ class VMapChangeImpl<K, V> implements VMapChange<K, V> {
     static final VMapChange<?, ?> EMPTY = new VMapChangeImpl<>(Collections.emptyMap());
 
     VMapChangeImpl(Map<K, V> entries) {
-        this.entries = entries;
+        this.entries = Collections.unmodifiableMap(copyOf(entries));
+    }
+
+    static <K, V> Map<K, V> emptyLike(Map<K, ?> source) {
+        if (source instanceof IdentityHashMap) return new IdentityHashMap<>();
+        if (source instanceof SortedMap) return new TreeMap<>(((SortedMap<K, ?>) source).comparator());
+        return new LinkedHashMap<>();
+    }
+
+    static <K, V> Map<K, V> copyOf(Map<K, V> source) {
+        Map<K, V> copy = emptyLike(source);
+        copy.putAll(source);
+        // Map wrappers may hide an identity-based backing map. Keep every entry even
+        // when several keys compare equal using ordinary Java equality.
+        return copy.size() == source.size() ? copy : new IdentityHashMap<>(source);
     }
 
     @Override

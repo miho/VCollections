@@ -34,9 +34,14 @@
  */
 package eu.mihosoft.vcollections;
 
+import java.util.AbstractSet;
+import java.util.Iterator;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BooleanSupplier;
 import vjavax.observer.Subscription;
-import eu.mihosoft.vcollections.VMapChangeListener;
+
 
 /**
  * Observable map.
@@ -174,11 +179,11 @@ final class VMapImpl<K, V> extends java.util.AbstractMap<K, V> implements VMap<K
         if (hasListeners()) {
             if (hadKey) {
                 fireChangeEvent(VMapChangeEvent.getSetEvent(this,
-                        java.util.Collections.singletonMap(key, previous),
-                        java.util.Collections.singletonMap(key, value), getEventInfo()));
+                        mapping(key, previous),
+                        mapping(key, value), getEventInfo()));
             } else {
                 fireChangeEvent(VMapChangeEvent.getAddedEvent(this,
-                        java.util.Collections.singletonMap(key, value), getEventInfo()));
+                        mapping(key, value), getEventInfo()));
             }
         }
         return previous;
@@ -192,48 +197,160 @@ final class VMapImpl<K, V> extends java.util.AbstractMap<K, V> implements VMap<K
         V removed = originalMap.remove(key);
         if (hasListeners()) {
             fireChangeEvent(VMapChangeEvent.getRemovedEvent(this,
-                    java.util.Collections.singletonMap((K) key, removed), getEventInfo()));
+                    mapping((K) key, removed), getEventInfo()));
         }
         return removed;
     }
 
     @Override
     public void clear() {
-        if (originalMap.isEmpty()) {
-            return;
-        }
-        Map<K, V> removed = new java.util.LinkedHashMap<>(originalMap);
-        originalMap.clear();
-        if (hasListeners()) {
-            fireChangeEvent(VMapChangeEvent.getRemovedEvent(this, removed, getEventInfo()));
+        if (!originalMap.isEmpty()) {
+            bulkEdit(() -> {
+                originalMap.clear();
+                return true;
+            }, null);
         }
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
-        if (m.isEmpty()) return;
-        Map<K, V> added = new java.util.LinkedHashMap<>();
-        Map<K, V> removed = new java.util.LinkedHashMap<>();
-        for (Entry<? extends K, ? extends V> e : m.entrySet()) {
-            K k = e.getKey();
-            V v = e.getValue();
-            if (originalMap.containsKey(k)) {
-                V prev = originalMap.put(k, v);
-                removed.put(k, prev);
-                added.put(k, v);
-            } else {
-                originalMap.put(k, v);
-                added.put(k, v);
+    public void putAll(Map<? extends K, ? extends V> entries) {
+        if (!entries.isEmpty()) {
+            bulkEdit(() -> {
+                originalMap.putAll(entries);
+                return true;
+            }, entries);
+        }
+    }
+
+    // A caller-supplied map can use a comparator or identity keys, evict entries,
+    // normalize writes, or accept only part of a batch before throwing. Delegate
+    // the operation unchanged and observe the actual result, including on failure.
+    private boolean bulkEdit(BooleanSupplier edit, Map<? extends K, ?> written) {
+        if (!hasListeners()) return edit.getAsBoolean();
+        Map<K, V> before = VMapChangeImpl.copyOf(originalMap);
+        boolean changed;
+        try {
+            changed = edit.getAsBoolean();
+        } catch (RuntimeException | Error failure) {
+            try {
+                fireDifference(before, null);
+            } catch (RuntimeException | Error notificationFailure) {
+                if (notificationFailure != failure) failure.addSuppressed(notificationFailure);
+            }
+            throw failure;
+        }
+        fireDifference(before, written);
+        return changed;
+    }
+
+    private void fireDifference(Map<K, V> before, Map<? extends K, ?> written) {
+        Map<K, V> after = VMapChangeImpl.copyOf(originalMap);
+        Map<K, Boolean> assigned = VMapChangeImpl.emptyLike(after);
+        // A successful putAll also reports assignments of existing equal values.
+        if (written != null) written.keySet().forEach(key -> assigned.put(key, true));
+        Map<K, V> removed = VMapChangeImpl.emptyLike(before);
+        for (Entry<K, V> entry : before.entrySet()) {
+            if (assigned.containsKey(entry.getKey()) || !after.entrySet().contains(entry)) {
+                removed.put(entry.getKey(), entry.getValue());
             }
         }
-        if (hasListeners()) {
+        Map<K, V> added = VMapChangeImpl.emptyLike(after);
+        for (Entry<K, V> entry : after.entrySet()) {
+            if (assigned.containsKey(entry.getKey()) || !before.entrySet().contains(entry)) {
+                added.put(entry.getKey(), entry.getValue());
+            }
+        }
+        if (!removed.isEmpty() || !added.isEmpty()) {
             fireChangeEvent(VMapChangeEvent.getSetEvent(this, removed, added, getEventInfo()));
         }
     }
 
+    private Map<K, V> mapping(K key, V value) {
+        Map<K, V> entries = VMapChangeImpl.emptyLike(originalMap);
+        entries.put(key, value);
+        return entries;
+    }
+
     @Override
-    public java.util.Set<Entry<K, V>> entrySet() {
-        return originalMap.entrySet();
+    public Set<Entry<K, V>> entrySet() {
+        return new AbstractSet<Entry<K, V>>() {
+            @Override public int size() { return originalMap.size(); }
+            @Override public void clear() { VMapImpl.this.clear(); }
+            @Override public boolean contains(Object entry) { return originalMap.entrySet().contains(entry); }
+
+            @Override
+            public boolean remove(Object entry) {
+                if (!(entry instanceof Entry)) return false;
+                Entry<?, ?> candidate = (Entry<?, ?>) entry;
+                Object key = candidate.getKey();
+                if (!originalMap.entrySet().contains(entry)) return false;
+                V previous = originalMap.get(key);
+                if (!originalMap.entrySet().remove(entry)) return false;
+                if (hasListeners()) {
+                    @SuppressWarnings("unchecked") K removedKey = (K) key;
+                    fireChangeEvent(VMapChangeEvent.getRemovedEvent(VMapImpl.this,
+                            mapping(removedKey, previous), getEventInfo()));
+                }
+                return true;
+            }
+
+            @Override
+            public Iterator<Entry<K, V>> iterator() {
+                Iterator<Entry<K, V>> delegate = originalMap.entrySet().iterator();
+                return new Iterator<Entry<K, V>>() {
+                    private Entry<K, V> current;
+
+                    @Override public boolean hasNext() { return delegate.hasNext(); }
+
+                    @Override
+                    public Entry<K, V> next() {
+                        current = delegate.next();
+                        return new ObservableEntry(current);
+                    }
+
+                    @Override
+                    public void remove() {
+                        if (current == null) throw new IllegalStateException();
+                        K key = current.getKey();
+                        V previous = current.getValue();
+                        delegate.remove();
+                        current = null;
+                        if (hasListeners()) {
+                            fireChangeEvent(VMapChangeEvent.getRemovedEvent(VMapImpl.this,
+                                    mapping(key, previous), getEventInfo()));
+                        }
+                    }
+                };
+            }
+        };
+    }
+
+    private final class ObservableEntry implements Entry<K, V> {
+        private final Entry<K, V> delegate;
+
+        ObservableEntry(Entry<K, V> delegate) { this.delegate = delegate; }
+        @Override public K getKey() { return delegate.getKey(); }
+        @Override public V getValue() { return delegate.getValue(); }
+        @Override public boolean equals(Object other) { return delegate.equals(other); }
+        @Override public int hashCode() { return delegate.hashCode(); }
+        @Override public String toString() { return delegate.toString(); }
+
+        @Override
+        public V setValue(V value) {
+            // Held entries can be detached by a preceding removal or reinsertion.
+            // Checking the backing entry set avoids both phantom events and access-order
+            // mutations caused by get() while an iterator is active.
+            Entry<K, V> replacement = new SimpleImmutableEntry<>(getKey(), value);
+            boolean changing = hasListeners() && originalMap.entrySet().contains(delegate)
+                    && !originalMap.entrySet().contains(replacement);
+            V previous = delegate.setValue(value);
+            if (changing && originalMap.entrySet().contains(replacement)) {
+                fireChangeEvent(VMapChangeEvent.getSetEvent(VMapImpl.this,
+                        mapping(getKey(), previous),
+                        mapping(getKey(), value), getEventInfo()));
+            }
+            return previous;
+        }
     }
 
     @Override
@@ -246,22 +363,27 @@ final class VMapImpl<K, V> extends java.util.AbstractMap<K, V> implements VMap<K
     }
 
     private void syncMaps(VMapImpl<K, V> src, VMapImpl<K, V> target) {
-        src.addChangeListener(target::fireChangeEvent);
+        src.addChangeListener(event -> {
+            if (target.hasListeners()) {
+                target.fireChangeEvent(new VMapChangeEventImpl<>(target,
+                        event.added(), event.removed(), event.eventInfo()));
+            }
+        });
     }
 
     @Override
     public boolean removeAll(K... keys) {
-        if (keys.length == 0) return true;
-        Map<K, V> removed = new java.util.LinkedHashMap<>();
-        for (K k : keys) {
-            if (originalMap.containsKey(k)) {
-                removed.put(k, originalMap.remove(k));
+        if (keys.length == 0) return false;
+        return bulkEdit(() -> {
+            boolean changed = false;
+            for (K key : keys) {
+                if (originalMap.containsKey(key)) {
+                    originalMap.remove(key);
+                    changed = true;
+                }
             }
-        }
-        if (hasListeners() && !removed.isEmpty()) {
-            fireChangeEvent(VMapChangeEvent.getRemovedEvent(this, removed, getEventInfo()));
-        }
-        return !removed.isEmpty();
+            return changed;
+        }, null);
     }
 
     @Override

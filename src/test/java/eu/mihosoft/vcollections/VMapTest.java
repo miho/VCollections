@@ -218,6 +218,130 @@ public class VMapTest {
         Assert.assertEquals(2, events.size());
     }
 
+    @Test
+    public void writableViewsPublishStableChanges() {
+        VMap<String, Integer> map = VMap.newInstance(new java.util.LinkedHashMap<>());
+        VMap<String, Integer> readOnly = map.asUnmodifiable();
+        List<VMapChangeEvent<String, Integer>> events = new ArrayList<>();
+        readOnly.addChangeListener(e -> events.add((VMapChangeEvent<String, Integer>) e));
+        map.put("a", null);
+        map.put("b", 2);
+        Assert.assertNull(map.entrySet().iterator().next().setValue(1));
+        map.replaceAll((k, v) -> v + 10);
+        map.values().remove(11);
+        map.keySet().remove("b");
+        Assert.assertTrue(map.isEmpty());
+        Assert.assertEquals(7, events.size());
+        Assert.assertSame(readOnly, events.get(2).source());
+        Assert.assertTrue(events.get(2).removed().entries().containsKey("a"));
+        Assert.assertNull(events.get(2).removed().entries().get("a"));
+        Assert.assertEquals(Integer.valueOf(11), events.get(5).removed().entries().get("a"));
+        Assert.assertThrows(UnsupportedOperationException.class, () -> events.get(2).added().entries().clear());
+        map.put("x", 1);
+        Assert.assertThrows(UnsupportedOperationException.class,
+                () -> events.get(2).source().entrySet().iterator().next().setValue(42));
+    }
+
+    @Test
+    public void reportsCommittedPrefixAndContinuesAfterListenerFailure() {
+        Map<String, Integer> backing = new HashMap<String, Integer>() {
+            @Override
+            public void putAll(Map<? extends String, ? extends Integer> values) {
+                put("a", values.get("a"));
+                throw new IllegalArgumentException("second key rejected");
+            }
+        };
+        VMap<String, Integer> map = VMap.newInstance(backing);
+        map.addChangeListener(e -> { throw new IllegalStateException("listener"); });
+        List<VMapChangeEvent<String, Integer>> events = new ArrayList<>();
+        map.addChangeListener(events::add);
+        Map<String, Integer> changes = new java.util.LinkedHashMap<>();
+        changes.put("a", 1);
+        changes.put("b", 2);
+        Throwable failure = Assert.assertThrows(IllegalArgumentException.class, () -> map.putAll(changes));
+        Assert.assertEquals(1, failure.getSuppressed().length);
+        Assert.assertEquals(java.util.Collections.singletonMap("a", 1), events.get(0).added().entries());
+    }
+
+    @Test
+    public void detachedEntriesCannotPublishChangesToTheLiveMap() {
+        VMap<String, Integer> map = VMap.newInstance(new java.util.LinkedHashMap<>());
+        map.put("key", 1);
+        Map.Entry<String, Integer> detached = map.entrySet().iterator().next();
+        map.remove("key");
+        List<VMapChangeEvent<String, Integer>> events = new ArrayList<>();
+        map.addChangeListener(events::add);
+        detached.setValue(2);
+        Assert.assertTrue(map.isEmpty());
+        map.put("key", 2);
+        events.clear();
+        detached.setValue(3);
+        Assert.assertEquals(Integer.valueOf(2), map.get("key"));
+        Assert.assertTrue(events.isEmpty());
+    }
+
+    @Test
+    public void bulkUpdatesPreserveIdentityAndComparatorSemantics() {
+        String first = new String("key");
+        String second = new String("key");
+        Map<String, Integer> input = new java.util.IdentityHashMap<>();
+        input.put(first, 1);
+        input.put(second, 2);
+        VMap<String, Integer> identity = VMap.newInstance(new java.util.IdentityHashMap<>());
+        List<VMapChangeEvent<String, Integer>> events = new ArrayList<>();
+        identity.addChangeListener(events::add);
+        identity.putAll(input);
+        Assert.assertEquals(2, identity.size());
+        Map<String, Integer> added = events.get(0).added().entries();
+        Assert.assertEquals(2, added.size());
+        Assert.assertEquals(Integer.valueOf(1), added.get(first));
+        Assert.assertEquals(Integer.valueOf(2), added.get(second));
+        Assert.assertFalse(added.containsKey(new String("key")));
+        identity.removeAll(first, second);
+        Assert.assertEquals(2, events.get(1).removed().entries().size());
+
+        events.clear();
+        VMap<String, Integer> insensitive = VMap.newInstance(new java.util.TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+        insensitive.put("EXISTING", 1);
+        insensitive.addChangeListener(events::add);
+        Map<String, Integer> aliases = new java.util.LinkedHashMap<>();
+        aliases.put("existing", 2);
+        aliases.put("KEY", 3);
+        aliases.put("key", 4);
+        insensitive.putAll(aliases);
+        Assert.assertEquals(2, insensitive.size());
+        Assert.assertEquals(2, events.get(0).added().entries().size());
+        Assert.assertEquals(Integer.valueOf(4), events.get(0).added().entries().get("Key"));
+        Assert.assertEquals(Integer.valueOf(1), events.get(0).removed().entries().get("Existing"));
+    }
+
+    @Test
+    public void partiallyFailedRemovalsPublishOnlyCommittedMappings() {
+        List<VMapChangeEvent<String, Integer>> events = new ArrayList<>();
+        VMap<String, Integer> sorted = VMap.newInstance(new java.util.TreeMap<>());
+        sorted.put("a", 1);
+        sorted.put("b", 2);
+        sorted.addChangeListener(events::add);
+        Assert.assertThrows(NullPointerException.class, () -> sorted.removeAll("a", null));
+        Assert.assertEquals(java.util.Collections.singletonMap("a", 1), events.get(0).removed().entries());
+        Assert.assertFalse(sorted.removeAll());
+        Assert.assertEquals(1, events.size());
+
+        events.clear();
+        VMap<String, Integer> partialClear = VMap.newInstance(new HashMap<String, Integer>() {
+            @Override public void clear() {
+                remove("a");
+                throw new UnsupportedOperationException("b is protected");
+            }
+        });
+        partialClear.put("a", 1);
+        partialClear.put("b", 2);
+        partialClear.addChangeListener(events::add);
+        Assert.assertThrows(UnsupportedOperationException.class, partialClear::clear);
+        Assert.assertEquals(java.util.Collections.singletonMap("b", 2), partialClear);
+        Assert.assertEquals(java.util.Collections.singletonMap("a", 1), events.get(0).removed().entries());
+    }
+
     private static String randomKey() {
         return "k" + getRandom().nextInt();
     }

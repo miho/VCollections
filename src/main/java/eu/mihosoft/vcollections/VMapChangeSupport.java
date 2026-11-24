@@ -64,9 +64,17 @@ public final class VMapChangeSupport<K, V> implements VMapObservable<K, V> {
 
     public void fireEvent(VMapChangeEvent<K, V> evt) {
         List<VMapChangeListener<K, V>> toNotify = new ArrayList<>(listeners);
+        Throwable failure = null;
         for (VMapChangeListener<K, V> l : toNotify) {
-            l.onChange(evt);
+            try {
+                l.onChange(evt);
+            } catch (RuntimeException | Error ex) {
+                if (failure == null) failure = ex;
+                else if (failure != ex) failure.addSuppressed(ex);
+            }
         }
+        if (failure instanceof RuntimeException) throw (RuntimeException) failure;
+        if (failure instanceof Error) throw (Error) failure;
     }
 
     public boolean hasListeners() {
