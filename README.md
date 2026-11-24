@@ -12,9 +12,17 @@
 Lightweight observable collections (used by VMF and [VRL](http://vrl-studio.mihosoft.eu)).
 
 ## Features
-- Observable List
-- Mapped List (keeps two lists with different element types in sync)
-- coming sooner or later: ObservableMap and ObservableSet
+
+- Observable lists and maps, including mapped views.
+- Observable sets with membership-based changes and live read-only views (`0.3.7-SNAPSHOT` on this branch).
+
+```java
+VSet<String> tags = VSet.newInstance();
+Subscription listener = tags.addChangeListener(edit -> System.out.println(edit.added()));
+tags.add("inspection");
+tags.add("inspection"); // returns false and emits no change
+listener.unsubscribe();
+```
 
 ## Using VCollections
 

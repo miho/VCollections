@@ -88,6 +88,25 @@ public interface VList<T> extends List<T>, VListObservable<T> {
     boolean removeAll(int... indices);
 
     /**
+     * Moves the element at {@code fromIndex} to {@code toIndex}, its index in the
+     * resulting list. A move publishes a single indexed replacement for the affected
+     * range. Equal indices leave the list unchanged.
+     * @param fromIndex existing index of the element
+     * @param toIndex desired index of the same element
+     */
+    default void move(int fromIndex, int toIndex) {
+        if (fromIndex < 0 || fromIndex >= size() || toIndex < 0 || toIndex >= size())
+            throw new IndexOutOfBoundsException("Move " + fromIndex + " to " + toIndex + " in list of size " + size());
+        if (fromIndex == toIndex) return;
+        int start = Math.min(fromIndex, toIndex);
+        int end = Math.max(fromIndex, toIndex);
+        List<T> range = new ArrayList<>(end - start + 1);
+        for (int i = start; i <= end; i++) range.add(get(i));
+        Collections.rotate(range, fromIndex < toIndex ? -1 : 1);
+        setAll(start, range);
+    }
+
+    /**
      * Sets specified elements. All elements from {@code index} to {@code index+elements.size()-1}
      * are set, i.e., replaced.
      * @param index start index
@@ -97,7 +116,9 @@ public interface VList<T> extends List<T>, VListObservable<T> {
     Collection<T> setAll(int index, Collection<T> elements);
 
     /**
-     * Adds the specified elements at the given indices. It requires that {@code indices.length == c.size()}
+     * Inserts each element at its corresponding index in the resulting list.
+     * Indices must be distinct and may be supplied in any order. The change
+     * event lists the affected indices and their values in ascending index order.
      * @param indices indices
      * @param c collection containing the elements to add
      * @return {@code true} if the collection changed as a result of the call; {@code false} otherwise
@@ -224,24 +245,14 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean remove(Object o) {
-        int index = 0;
-
-        if (hasListeners()) {
-            index = indexOf(o);
-        }
-
-        boolean result = originalList.remove(o);
-
-        if (hasListeners() && result) {
-            _vmf_fireChangeEvent(VListChangeEvent.
-                    getRemovedEvent(this,
-                            new int[]{index},
-                            (List<T>) Arrays.asList(o),getEventInfo()));
-        }
-
-        return result;
+        if (!hasListeners()) return originalList.remove(o);
+        int index = originalList.indexOf(o);
+        if (index < 0) return false;
+        T stored = originalList.remove(index);
+        _vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(this, new int[]{index},
+                Collections.singletonList(stored), getEventInfo()));
+        return true;
     }
 
     @Override
@@ -292,63 +303,59 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     @Override
     public boolean addAll(int[] indices, Collection<? extends T> c) {
 
-        Objects.requireNonNull(indices, "Indices must not be null");
-        Objects.requireNonNull(c, "collection must not be null");
+        Objects.requireNonNull(indices, "indices");
+        List<T> elements = new ArrayList<>(Objects.requireNonNull(c, "elements"));
+        if (indices.length != elements.size()) throw new IllegalArgumentException("Index and element counts differ");
+        if (indices.length == 0) return false;
 
-        if(indices.length!=c.size()) {
-            throw new RuntimeException("The number of indices must match the number of elements to add");
+        long finalSize = (long) size() + indices.length;
+        java.util.SortedMap<Integer, T> insertions = new java.util.TreeMap<>();
+        for (int i = 0; i < indices.length; i++) {
+            int index = indices[i];
+            if (index < 0 || index >= finalSize) throw new IndexOutOfBoundsException("Insertion index " + index);
+            if (insertions.containsKey(index)) throw new IllegalArgumentException("Duplicate insertion index " + index);
+            insertions.put(index, elements.get(i));
         }
 
-        // only sort indices if we have listeners
-        int[] indicesSorted;
-        if(hasListeners()) {
-            indicesSorted = indices.clone();
-            Arrays.sort(indicesSorted);
-        } else {
-            indicesSorted = indices;
+        int[] sorted = insertions.keySet().stream().mapToInt(Integer::intValue).toArray();
+        List<T> ordered = new ArrayList<>(insertions.values());
+        int committed = 0;
+        try {
+            while (committed < sorted.length) {
+                originalList.add(sorted[committed], ordered.get(committed));
+                committed++;
+            }
+        } catch (RuntimeException | Error failure) {
+            // A restrictive backing list may reject a later element. Undo earlier
+            // insertions before notifying observers, while all indices are still known.
+            while (committed > 0) {
+                try {
+                    originalList.remove(sorted[committed - 1]);
+                    committed--;
+                } catch (RuntimeException | Error rollbackFailure) {
+                    if (failure != rollbackFailure) failure.addSuppressed(rollbackFailure);
+                    // Custom add-only lists cannot roll back. Report their committed prefix.
+                    if (hasListeners()) {
+                        try {
+                            _vmf_fireChangeEvent(VListChangeEvent.getAddedEvent(this, Arrays.copyOf(sorted, committed),
+                                    new ArrayList<>(ordered.subList(0, committed)), getEventInfo()));
+                        } catch (RuntimeException | Error observerFailure) {
+                            if (failure != observerFailure) failure.addSuppressed(observerFailure);
+                        }
+                    }
+                    break;
+                }
+            }
+            throw failure;
         }
-
-        Iterator<? extends T> it = c.iterator();
-
-        boolean changed = indicesSorted.length>0;
-
-        for (int i = indicesSorted.length - 1; i > -1; i--) {
-            originalList.add(indicesSorted[i],it.next());
-        }
-
-        if (hasListeners()) {
-            _vmf_fireChangeEvent(VListChangeEvent.
-                    getAddedEvent(this, indices, new ArrayList<>(c),getEventInfo()));
-        }
-
-        return changed;
+        if (hasListeners()) _vmf_fireChangeEvent(VListChangeEvent.getAddedEvent(this, sorted, ordered, getEventInfo()));
+        return true;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public boolean removeAll(Collection<?> c) {
-
-        int[] indices = null;
-
-        if (hasListeners()) {
-            c = c.stream().filter(e -> contains(e)).
-                    collect(Collectors.toList());
-
-            indices = c.stream().mapToInt(e -> indexOf(e)).toArray();
-        }
-
-        boolean result = originalList.removeAll(c);
-
-        if (hasListeners()) {
-
-            _vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(this, indices,
-                    new ArrayList(c),getEventInfo()
-            ));
-
-        }
-
-        return result;
-
+    public boolean removeAll(Collection<?> values) {
+        Objects.requireNonNull(values);
+        return filterMembership(values, false);
     }
 
     @Override
@@ -410,34 +417,48 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(Collection<?> values) {
+        Objects.requireNonNull(values);
+        return filterMembership(values, true);
+    }
 
-        int[] indices = null;
-        List<T> elementsToRemove = null;
-
-        if (hasListeners()) {
-            c = c.stream().filter(e -> contains(e)).collect(Collectors.toList());
-
-            List<Integer> indexList = c.stream().map(e -> indexOf(e)).
-                    collect(Collectors.toList());
-
-            indices = IntStream.range(0, size()).
-                    filter(i -> !indexList.contains(i)).toArray();
-
-            elementsToRemove = IntStream.of(indices).boxed().
-                    map(i -> get(i)).collect(Collectors.toList());
+    private boolean filterMembership(Collection<?> values, boolean retain) {
+        if (!hasListeners()) return retain ? originalList.retainAll(values) : originalList.removeAll(values);
+        List<T> before = new ArrayList<>(originalList);
+        boolean changed;
+        try {
+            changed = retain ? originalList.retainAll(values) : originalList.removeAll(values);
+        } catch (RuntimeException | Error failure) {
+            try {
+                reportRemovedOccurrences(before);
+            } catch (RuntimeException | Error delivery) {
+                if (delivery != failure) failure.addSuppressed(delivery);
+            }
+            throw failure;
         }
+        if (changed) reportRemovedOccurrences(before);
+        return changed;
+    }
 
-        boolean result = originalList.retainAll(c);
-
-        if (hasListeners()) {
-            _vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(this, indices,
-                    elementsToRemove,getEventInfo()
-            ));
+    // A membership filter preserves the relative order of the survivors.
+    private void reportRemovedOccurrences(List<T> before) {
+        if (before.size() == size()) return;
+        List<T> removed = new ArrayList<>();
+        java.util.BitSet indices = new java.util.BitSet();
+        ListIterator<T> survivors = originalList.listIterator();
+        T next = survivors.hasNext() ? survivors.next() : null;
+        int matched = 0;
+        for (int i = 0; i < before.size(); i++) {
+            T old = before.get(i);
+            if (matched < originalList.size() && old == next) {
+                matched++;
+                next = survivors.hasNext() ? survivors.next() : null;
+            } else {
+                indices.set(i);
+                removed.add(old);
+            }
         }
-
-        return result;
-
+        _vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(this, indices.stream().toArray(), removed, getEventInfo()));
     }
 
     @Override
@@ -545,29 +566,41 @@ final class VListImpl<T> extends AbstractList<T> implements VList<T> {
 
     @Override
     public boolean removeIf(Predicate<? super T> filter) {
-
         Objects.requireNonNull(filter);
+        return hasListeners() ? removeObserved(filter) : originalList.removeIf(filter);
+    }
 
-        List<T> removed = null;
-        int[] indices = null;
-
-        if (hasListeners()) {
-            removed = originalList.stream().filter(filter).
-                    collect(Collectors.toList());
-
-            indices = removed.stream().mapToInt(e -> indexOf(e)).toArray();
+    // Record exactly the occurrences selected by the operation. Looking up each
+    // removed value with indexOf loses both position and identity for equal elements.
+    private boolean removeObserved(Predicate<? super T> filter) {
+        List<T> removed = new ArrayList<>();
+        java.util.BitSet indices = new java.util.BitSet();
+        int initialSize = size();
+        int[] position = {0};
+        try {
+            boolean changed = originalList.removeIf(element -> {
+                int index = position[0]++;
+                if (!filter.test(element)) return false;
+                indices.set(index);
+                removed.add(element);
+                return true;
+            });
+            if (!changed) return false;
+        } catch (RuntimeException | Error failure) {
+            // A backing list using Iterator.remove may have committed a prefix.
+            int count = initialSize - size();
+            if (count > 0 && count <= removed.size()) {
+                try {
+                    _vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(this,
+                            indices.stream().limit(count).toArray(), new ArrayList<>(removed.subList(0, count)), getEventInfo()));
+                } catch (RuntimeException | Error delivery) {
+                    if (delivery != failure) failure.addSuppressed(delivery);
+                }
+            }
+            throw failure;
         }
-
-        boolean result = originalList.removeIf(filter);
-
-        if (hasListeners()) {
-            _vmf_fireChangeEvent(VListChangeEvent.
-                    getRemovedEvent(this,
-                            indices,
-                            removed,getEventInfo()));
-        }
-
-        return result;
+        _vmf_fireChangeEvent(VListChangeEvent.getRemovedEvent(this, indices.stream().toArray(), removed, getEventInfo()));
+        return true;
     }
 
     @Override
